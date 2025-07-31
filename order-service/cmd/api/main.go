@@ -1,28 +1,33 @@
 package main
 
 import (
+	"google.golang.org/grpc"
 	"log"
-	"net/http"
-	"time"
+	"net"
+	pb "order-service/protobuf"
+	"order-service/service"
 )
 
 func main() {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("GET /orders", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello from Order Service"))
-	})
-
-	server := &http.Server{
-		Addr:         ":8080",
-		Handler:      mux,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
-		IdleTimeout:  120 * time.Second,
-	}
-
-	if err := server.ListenAndServe(); err != nil {
+	if err := run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func run() error {
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		return err
+	}
+
+	s := grpc.NewServer()
+	pb.RegisterOrderServiceServer(s, &service.OrderService{})
+
+	log.Println("Starting gRPC order service server on port :8080")
+
+	if err = s.Serve(listener); err != nil {
+		return err
+	}
+
+	return nil
 }
