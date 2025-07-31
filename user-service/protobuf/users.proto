@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option go_package = "/protobuf";
+
+import "google/protobuf/empty.proto";
+
+package users;
+
+service UserService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Authenticate(AuthRequest) returns (AuthResponse);
+  rpc GetProfile(GetUserRequest) returns (GetUserResponse);
+  rpc UpdateProfile(UpdateUserRequest) returns (google.protobuf.Empty);
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string password_confirmation = 3;
+  string first_name = 4;
+  string last_name = 5;
+}
+
+message RegisterResponse {
+  int64 user_id = 1;
+}
+
+message AuthRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string token = 1;
+}
+
+message GetUserRequest {
+  int64 user_id = 1;
+}
+
+message GetUserResponse {
+  int64 user_id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+}
+
+message UpdateUserRequest {
+  int64 user_id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+}
