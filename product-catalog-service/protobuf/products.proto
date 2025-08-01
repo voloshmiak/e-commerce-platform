@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+option go_package = "/protobuf";
+
+import "google/protobuf/empty.proto";
+
+package product;
+
+service ProductCatalogService {
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc ListProducts(google.protobuf.Empty) returns (ListProductsResponse);
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (google.protobuf.Empty);
+  rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty);
+  rpc CheckStock(CheckStockRequest) returns (CheckStockResponse);
+}
+
+message Product {
+  int64 id = 1;
+  string sku = 2;
+  string name = 3;
+  string description = 4;
+  double price = 5;
+  Currency currency = 6;
+  int32 stock = 7;
+  string category = 8;
+  string image_url = 9;
+  map<string, string> attributes = 10;
+  bool is_active = 11;
+}
+
+message GetProductRequest {
+  int64 id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  Currency currency = 4;
+  int32 stock = 5;
+  string category = 6;
+  string image_url = 7;
+  map<string, string> attributes = 8;
+}
+
+message CreateProductResponse {
+  int64 id = 1;
+}
+
+message UpdateProductRequest {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  Currency currency = 5;
+  int32 stock = 6;
+  string category = 7;
+  string image_url = 8;
+  map<string, string> attributes = 9;
+}
+message  DeleteProductRequest {
+  int64 id = 1;
+}
+
+message CheckStockRequest {
+  int64 id = 1;
+  int32 quantity = 2;
+}
+
+message CheckStockResponse {
+  bool in_stock = 1;
+}
+
+enum Currency {
+  EUR=0;
+  USD=1;
+  JPY=2;
+  BGN=3;
+  CZK=4;
+  DKK=5;
+  GBP=6;
+  HUF=7;
+  PLN=8;
+  RON=9;
+  SEK=10;
+  CHF=11;
+  ISK=12;
+  NOK=13;
+  HRK=14;
+  RUB=15;
+  TRY=16;
+  AUD=17;
+  BRL=18;
+  CAD=19;
+  CNY=20;
+  HKD=21;
+  IDR=22;
+  ILS=23;
+  INR=24;
+  KRW=25;
+  MXN=26;
+  MYR=27;
+  NZD=28;
+  PHP=29;
+  SGD=30;
+  THB=31;
+  ZAR=32;
+}
