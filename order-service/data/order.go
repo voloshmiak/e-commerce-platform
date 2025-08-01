@@ -1,68 +1,53 @@
 package data
 
 import (
-	pb "order-service/protobuf"
+	"time"
 )
 
-var orders = []*pb.OrderSummary{
+type Status string
+
+const (
+	Pending   Status = "pending"
+	Paid      Status = "paid"
+	Shipped   Status = "shipped"
+	Cancelled Status = "cancelled"
+)
+
+type Order struct {
+	ID              int64       `json:"id"`
+	UserID          int64       `json:"user_id"`
+	Status          Status      `json:"status"`
+	Items           []OrderItem `json:"items"`
+	TotalPrice      float64     `json:"total_price"`
+	ShippingAddress string      `json:"shipping_address"`
+	CreatedAt       time.Time   `json:"created_at"`
+}
+
+type OrderItem struct {
+	ID        int64   `json:"id"`
+	OrderID   int64   `json:"order_id"`
+	ProductID int64   `json:"product_id"`
+	Quantity  int64   `json:"quantity"`
+	Price     float64 `json:"price"`
+}
+
+var Orders = []*Order{
 	{
-		OrderId: 1,
-		UserId:  123,
-		Items: []*pb.OrderItem{
-			{ProductId: 1, Quantity: 2, Price: 19.99},
-			{ProductId: 2, Quantity: 1, Price: 29.99},
-		},
-		Status: "Pending",
+		ID:              1,
+		UserID:          1,
+		Status:          Paid,
+		Items:           []OrderItem{{ID: 1, OrderID: 1, ProductID: 101, Quantity: 2, Price: 50.00}},
+		TotalPrice:      100.00,
+		ShippingAddress: "123 Main St, Anytown, USA",
+		CreatedAt:       time.Now(),
 	},
 	{
-		OrderId: 2,
-		UserId:  789,
-		Items: []*pb.OrderItem{
-			{ProductId: 3, Quantity: 1, Price: 49.99},
-			{ProductId: 4, Quantity: 3, Price: 15.99},
-		},
-		Status: "Shipped",
+		ID:              2,
+		UserID:          2,
+		Status:          Shipped,
+		Items:           []OrderItem{{ID: 2, OrderID: 2, ProductID: 102, Quantity: 1, Price: 75.00}},
+		TotalPrice:      75.00,
+		ShippingAddress: "456 Elm St, Othertown, USA",
+		CreatedAt:       time.Now(),
 	},
-}
-
-func GetOrderByID(id int64) *pb.OrderSummary {
-	for _, order := range orders {
-		if order.OrderId == id {
-			return order
-		}
-	}
-	return nil
-}
-
-func GetOrdersByUserID(userID int64) []*pb.OrderSummary {
-	var userOrders []*pb.OrderSummary
-	for _, order := range orders {
-		if order.UserId == userID {
-			userOrders = append(userOrders, order)
-		}
-	}
-	return userOrders
-}
-
-func CreateOrder(userID int64, items []*pb.OrderItem) (int64, string) {
-	order := &pb.OrderSummary{
-		OrderId: int64(len(orders) + 1),
-		UserId:  userID,
-		Items:   items,
-		Status:  "Pending",
-	}
-
-	orders = append(orders, order)
-
-	return order.OrderId, order.Status
-}
-
-func UpdateOrderStatus(orderID int64, status string) (int64, string) {
-	for _, order := range orders {
-		if order.OrderId == orderID {
-			order.Status = status
-			return order.OrderId, status
-		}
-	}
-	return 0, ""
 }
