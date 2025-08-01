@@ -28,7 +28,7 @@ func (s *ProductCatalogService) GetProduct(_ context.Context, r *pb.GetProductRe
 	}}, nil
 }
 
-func (s *ProductCatalogService) ListProducts(_ context.Context, r *emptypb.Empty) (*pb.ListProductsResponse, error) {
+func (s *ProductCatalogService) ListProducts(_ context.Context, _ *emptypb.Empty) (*pb.ListProductsResponse, error) {
 	products := data.GetAllProducts()
 
 	var productList []*pb.Product
