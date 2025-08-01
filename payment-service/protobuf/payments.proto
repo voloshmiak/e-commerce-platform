@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "/protobuf";
 
-package payments;
+package payment;
 
 service PaymentService {
   rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse);
