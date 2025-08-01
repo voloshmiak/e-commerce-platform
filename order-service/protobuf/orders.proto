@@ -4,7 +4,7 @@ option go_package = "/protobuf";
 
 import "google/protobuf/empty.proto";
 
-package orders;
+package order;
 
 service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
@@ -32,7 +32,7 @@ message CreateOrderResponse {
 message Order {
   int64 order_id = 1;
   int64 user_id = 2;
-  string status = 3;
+  Status status = 3;
   repeated OrderItem items = 4;
   double total_price = 5;
   string shipping_address = 6;
@@ -52,5 +52,12 @@ message ListOrdersResponse {
 
 message UpdateStatusRequest {
   int64 order_id = 1;
-  string status = 2;
+  Status status = 2;
+}
+
+enum Status {
+  PENDING = 0;
+  PAID = 1;
+  SHIPPED = 2;
+  CANCELLED = 3;
 }

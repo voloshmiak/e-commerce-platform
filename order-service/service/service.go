@@ -45,7 +45,7 @@ func (s *OrderService) GetOrder(_ context.Context, r *pb.GetOrderRequest) (*pb.O
 	return &pb.Order{
 		OrderId:         order.ID,
 		UserId:          order.UserID,
-		Status:          string(order.Status),
+		Status:          pb.Status(pb.Status_value[string(order.Status)]),
 		Items:           items,
 		TotalPrice:      order.TotalPrice,
 		ShippingAddress: order.ShippingAddress,
@@ -68,7 +68,7 @@ func (s *OrderService) ListOrders(_ context.Context, r *pb.ListOrdersRequest) (*
 		ordersResponse = append(ordersResponse, &pb.Order{
 			OrderId:         order.ID,
 			UserId:          order.UserID,
-			Status:          string(order.Status),
+			Status:          pb.Status(pb.Status_value[string(order.Status)]),
 			Items:           items,
 			TotalPrice:      order.TotalPrice,
 			ShippingAddress: order.ShippingAddress,
