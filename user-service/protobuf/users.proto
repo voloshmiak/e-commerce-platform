@@ -4,7 +4,7 @@ option go_package = "/protobuf";
 
 import "google/protobuf/empty.proto";
 
-package users;
+package user;
 
 service UserService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
