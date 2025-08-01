@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"order-service/data"
 	pb "order-service/protobuf"
 )
@@ -11,51 +12,76 @@ type OrderService struct {
 }
 
 func (s *OrderService) CreateOrder(_ context.Context, r *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
-	orderID, status := data.CreateOrder(r.GetUserId(), r.GetItems())
+	items := make([]*data.OrderItem, len(r.GetItems()))
+	for i, item := range r.GetItems() {
+		items[i] = &data.OrderItem{
+			ProductID: item.GetProductId(),
+			Quantity:  item.GetQuantity(),
+			Price:     item.GetPrice(),
+		}
+	}
+	orderID := data.AddOrder(r.GetUserId(), items, r.GetShippingAddress())
 
 	return &pb.CreateOrderResponse{
 		OrderId: orderID,
-		Status:  status,
 	}, nil
 }
 
-func (s *OrderService) GetOrder(_ context.Context, r *pb.GetOrderRequest) (*pb.OrderSummary, error) {
+func (s *OrderService) GetOrder(_ context.Context, r *pb.GetOrderRequest) (*pb.Order, error) {
 	order := data.GetOrderByID(r.GetOrderId())
 	if order == nil {
 		return nil, nil
 	}
 
-	return &pb.OrderSummary{
-		OrderId: order.OrderId,
-		UserId:  order.UserId,
-		Items:   order.Items,
-		Status:  order.Status,
+	items := make([]*pb.OrderItem, len(order.Items))
+	for i, item := range order.Items {
+		items[i] = &pb.OrderItem{
+			ProductId: item.ProductID,
+			Quantity:  item.Quantity,
+			Price:     item.Price,
+		}
+	}
+
+	return &pb.Order{
+		OrderId:         order.ID,
+		UserId:          order.UserID,
+		Status:          string(order.Status),
+		Items:           items,
+		TotalPrice:      order.TotalPrice,
+		ShippingAddress: order.ShippingAddress,
 	}, nil
 }
 
 func (s *OrderService) ListOrders(_ context.Context, r *pb.ListOrdersRequest) (*pb.ListOrdersResponse, error) {
 	orders := data.GetOrdersByUserID(r.GetUserId())
 
-	var orderSummaries []*pb.OrderSummary
+	var ordersResponse []*pb.Order
 	for _, order := range orders {
-		orderSummaries = append(orderSummaries, &pb.OrderSummary{
-			OrderId: order.OrderId,
-			UserId:  order.UserId,
-			Items:   order.Items,
-			Status:  order.Status,
+		items := make([]*pb.OrderItem, len(order.Items))
+		for i, item := range order.Items {
+			items[i] = &pb.OrderItem{
+				ProductId: item.ProductID,
+				Quantity:  item.Quantity,
+				Price:     item.Price,
+			}
+		}
+		ordersResponse = append(ordersResponse, &pb.Order{
+			OrderId:         order.ID,
+			UserId:          order.UserID,
+			Status:          string(order.Status),
+			Items:           items,
+			TotalPrice:      order.TotalPrice,
+			ShippingAddress: order.ShippingAddress,
 		})
 	}
 
 	return &pb.ListOrdersResponse{
-		Orders: orderSummaries,
+		Orders: ordersResponse,
 	}, nil
 }
 
-func (s *OrderService) UpdateOrderStatus(_ context.Context, r *pb.UpdateStatusRequest) (*pb.UpdateStatusResponse, error) {
-	orderID, status := data.UpdateOrderStatus(r.GetOrderId(), r.GetStatus())
+func (s *OrderService) UpdateOrderStatus(_ context.Context, r *pb.UpdateStatusRequest) (*emptypb.Empty, error) {
+	data.UpdateOrderStatus(r.GetOrderId(), data.Status(r.GetStatus()))
 
-	return &pb.UpdateStatusResponse{
-		OrderId: orderID,
-		Status:  status,
-	}, nil
+	return &emptypb.Empty{}, nil
 }
