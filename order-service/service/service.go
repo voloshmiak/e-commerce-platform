@@ -52,7 +52,7 @@ func (s *OrderService) GetOrder(_ context.Context, r *pb.GetOrderRequest) (*pb.O
 	}, nil
 }
 
-func (s *OrderService) ListOrders(_ context.Context, r *pb.ListOrdersRequest) (*pb.ListOrdersResponse, error) {
+func (s *OrderService) ListUserOrders(_ context.Context, r *pb.ListOrdersRequest) (*pb.ListOrdersResponse, error) {
 	orders := data.GetOrdersByUserID(r.GetUserId())
 
 	var ordersResponse []*pb.Order
