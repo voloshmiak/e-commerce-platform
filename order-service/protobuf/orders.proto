@@ -3,13 +3,22 @@ syntax = "proto3";
 option go_package = "/protobuf";
 
 import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
 package order;
 
 service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
-  rpc GetOrder(GetOrderRequest) returns (Order);
-  rpc ListUserOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  rpc GetOrder(GetOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      get: "/api/v1/orders/{order_id}"
+    };
+  };
+  rpc ListUserOrders(ListOrdersRequest) returns (ListOrdersResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/orders"
+    };
+  }
   rpc UpdateOrderStatus(UpdateStatusRequest) returns (google.protobuf.Empty);
 }
 

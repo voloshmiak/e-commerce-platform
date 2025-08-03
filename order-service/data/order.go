@@ -34,7 +34,7 @@ type OrderItem struct {
 var Orders = []*Order{
 	{
 		ID:              1,
-		UserID:          1,
+		UserID:          2,
 		Status:          Paid,
 		Items:           []*OrderItem{{ID: 1, OrderID: 1, ProductID: 101, Quantity: 2, Price: 50.00}},
 		TotalPrice:      100.00,
