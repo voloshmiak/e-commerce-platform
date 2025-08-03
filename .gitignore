@@ -1,1 +1,11 @@
-./.idea
+# IDE files
+.idea/
+.vscode/
+
+# Kong temporary directories
+gateway/prefix_volume/
+gateway/tmp_volume/
+
+# Common temporary files
+*.log
+*.tmp
