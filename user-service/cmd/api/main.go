@@ -1,11 +1,21 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"log"
 	"net"
+	"strconv"
+	"strings"
 	pb "user-service/protobuf"
 	"user-service/service"
+)
+
+const (
+	secret = "my-secret-key"
 )
 
 func main() {
@@ -20,7 +30,7 @@ func run() error {
 		return err
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(FetchUserIDInterceptor))
 	pb.RegisterUserServiceServer(s, &service.UserService{})
 
 	log.Println("Starting gRPC user service server on port :8080")
@@ -30,4 +40,44 @@ func run() error {
 	}
 
 	return nil
+}
+
+func FetchUserIDInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	mt, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("missing metadata in context")
+	}
+
+	bearedToken := mt.Get("Authorization")[0]
+
+	tokenString := strings.TrimPrefix(bearedToken, "Bearer ")
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+
+	userID, ok := claims["user-id"]
+	if !ok {
+		return nil, fmt.Errorf("user-id not found in token claims")
+	}
+
+	userIDFloat, ok := userID.(float64)
+	if !ok {
+		return nil, fmt.Errorf("user-id is not a valid float64")
+	}
+
+	userIDInt := int(userIDFloat)
+
+	md := metadata.Pairs("user-id", strconv.Itoa(userIDInt))
+
+	ctx = metadata.NewIncomingContext(ctx, md)
+
+	resp, err := handler(ctx, req)
+	return resp, err
 }

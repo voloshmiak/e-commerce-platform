@@ -8,38 +8,42 @@ import "google/api/annotations.proto";
 package order;
 
 service OrderService {
-  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
-  rpc GetOrder(GetOrderRequest) returns (Order) {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {
     option (google.api.http) = {
-      get: "/api/v1/orders/{order_id}"
+      post: "/api/v1/orders"
+      body: "*"
     };
   };
-  rpc ListUserOrders(ListOrdersRequest) returns (ListOrdersResponse) {
+  rpc GetOrder(GetOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      get: "/api/v1/orders/{id}"
+    };
+  };
+  rpc ListUserOrders(google.protobuf.Empty) returns (ListOrdersResponse) {
     option (google.api.http) = {
       get: "/api/v1/orders"
     };
-  }
+  };
   rpc UpdateOrderStatus(UpdateStatusRequest) returns (google.protobuf.Empty);
 }
 
 message OrderItem {
-  int64 product_id = 2;
-  int64 quantity = 3;
-  double price = 4;
+  int64 product_id = 1;
+  int64 quantity = 2;
+  double price = 3;
 }
 
 message CreateOrderRequest {
-  int64 user_id = 1;
-  string ShippingAddress = 2;
-  repeated OrderItem items = 3;
+  string shipping_address = 1;
+  repeated OrderItem items = 2;
 }
 
 message CreateOrderResponse {
-  int64 order_id = 1;
+  int64 id = 1;
 }
 
 message Order {
-  int64 order_id = 1;
+  int64 id = 1;
   int64 user_id = 2;
   Status status = 3;
   repeated OrderItem items = 4;
@@ -48,11 +52,7 @@ message Order {
 }
 
 message GetOrderRequest {
-  int64 order_id = 1;
-}
-
-message ListOrdersRequest {
-  int64 user_id = 1;
+  int64 id = 1;
 }
 
 message ListOrdersResponse {
@@ -60,7 +60,7 @@ message ListOrdersResponse {
 }
 
 message UpdateStatusRequest {
-  int64 order_id = 1;
+  int64 id = 1;
   Status status = 2;
 }
 

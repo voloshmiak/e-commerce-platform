@@ -172,15 +172,19 @@ services:
       - ecommerce-network
 
   kong-dbless:
-    image: '${GW_IMAGE:-kong/kong-gateway:3.11.0.2}' # Kong Gateway image (default to latest version)
-    container_name: kong-dbless-readonly
+    image: '${GW_IMAGE:-kong/kong-gateway:3.11.0.2}'
     read_only: true
     restart: unless-stopped
+    container_name: kong-dbless
     networks:
       - ecommerce-network
     volumes:
       - ./gateway:/kong/declarative/
-      - ./order-service/protobuf:/kong/protos
+      - ./order-service/protobuf:/kong/protos/order
+      - ./payment-service/protobuf:/kong/protos/payment
+      - ./product-catalog-service/protobuf:/kong/protos/product-catalog
+      - ./shopping-cart-service/protobuf:/kong/protos/shopping-cart
+      - ./user-service/protobuf:/kong/protos/user
       - ./gateway/tmp_volume:/tmp
       - ./gateway/prefix_volume:/var/run/kong
     environment:

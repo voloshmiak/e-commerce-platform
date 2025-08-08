@@ -67,9 +67,9 @@ func AddOrder(userID int64, items []*OrderItem, shippingAddress string) int64 {
 	return order.ID
 }
 
-func GetOrderByID(orderID int64) *Order {
+func GetUserOrderByID(userID int64, orderID int64) *Order {
 	for _, order := range Orders {
-		if order.ID == orderID {
+		if order.ID == orderID && order.UserID == userID {
 			return order
 		}
 	}

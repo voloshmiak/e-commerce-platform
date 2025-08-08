@@ -2,10 +2,17 @@ syntax = "proto3";
 
 option go_package = "/protobuf";
 
+import "google/api/annotations.proto";
+
 package payment;
 
 service PaymentService {
-  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse);
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/payments/process"
+      body: "*"
+    };
+  };
   rpc GetPaymentStatus(GetPaymentStatusRequest) returns (GetPaymentStatusResponse);
 }
 

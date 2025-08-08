@@ -6,18 +6,30 @@ services:
     protocol: grpc
     host: product-catalog-service
     port: 8080
+    plugins:
+      - name: grpc-gateway
+        config:
+          proto: /kong/protos/product-catalog/products.proto
 
   # User Service
   - name: user-service
     protocol: grpc
     host: user-service
     port: 8080
+    plugins:
+      - name: grpc-gateway
+        config:
+          proto: /kong/protos/user/users.proto
 
   # Shopping Cart Service
   - name: cart-service
     protocol: grpc
     host: shopping-cart-service
     port: 8080
+    plugins:
+      - name: grpc-gateway
+        config:
+          proto: /kong/protos/shopping-cart/carts.proto
 
   # Order Service
   - name: order-service
@@ -27,13 +39,17 @@ services:
     plugins:
       - name: grpc-gateway
         config:
-          proto: /kong/protos/orders.proto
+          proto: /kong/protos/order/orders.proto
 
   # Payment Service
   - name: payment-service
     protocol: grpc
     host: payment-service
     port: 8080
+    plugins:
+      - name: grpc-gateway
+        config:
+          proto: /kong/protos/payment/payments.proto
 
   # Notification Service
   - name: notification-service
@@ -44,15 +60,13 @@ services:
 routes:
   # Product Catalog Routes
   - name: products-list
-    paths:
-      - /api/v1/products
+    paths: [/api/v1/products]
     methods: [GET, POST]
     service: product-service
     strip_path: true
 
   - name: products-detail
-    paths:
-      - /api/v1/products/.~*
+    paths: [~/api/v1/products/\d+$]
     methods: [GET, PUT, DELETE]
     service: product-service
     strip_path: true
@@ -81,11 +95,27 @@ routes:
   # Shopping Cart Routes
   - name: cart-view
     paths: [/api/v1/cart]
-    methods: [GET, PUT, DELETE]
+    methods: [GET]
     service: cart-service
     strip_path: true
     plugins:
       - name: jwt
+
+  - name: cart-add
+    paths: [/api/v1/cart/items]
+    methods: [POST]
+    service: cart-service
+    strip_path: true
+    plugins:
+        - name: jwt
+
+  - name: cart-update
+    paths: [~/api/v1/cart/items/\d+$]
+    methods: [PUT, DELETE]
+    service: cart-service
+    strip_path: true
+    plugins:
+        - name: jwt
 
   # Order Service Routes
   - name: orders
@@ -93,27 +123,22 @@ routes:
     methods: [GET, POST]
     service: order-service
     strip_path: true
+    plugins:
+      - name: jwt
 
   - name: order-detail
-    paths: [/api/v1/orders/.~*]
-    methods: [GET, PUT]
+    paths: [~/api/v1/orders/\d+$]
+    methods: [GET]
     service: order-service
-    strip_path: true
-
-  # Payment Service Routes
-  - name: payments
-    paths: [/api/v1/payments]
-    methods: [GET, POST]
-    service: payment-service
     strip_path: true
     plugins:
       - name: jwt
 
-  # Notification Service Routes
-  - name: notifications
-    paths: [/api/v1/notifications]
-    methods: [GET]
-    service: notification-service
+  # Payment Service Routes
+  - name: payments
+    paths: [/api/v1/payments/process]
+    methods: [POST]
+    service: payment-service
     strip_path: true
     plugins:
       - name: jwt
@@ -123,3 +148,10 @@ plugins:
     config:
       minute: 100
       policy: local
+
+consumers:
+  - username: my-api-user
+    jwt_secrets:
+      - algorithm: HS256
+        key: my-unique-issuer-key
+        secret: my-secret-key

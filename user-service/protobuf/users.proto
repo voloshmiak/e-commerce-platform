@@ -3,14 +3,34 @@ syntax = "proto3";
 option go_package = "/protobuf";
 
 import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
 package user;
 
 service UserService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc Authenticate(AuthRequest) returns (AuthResponse);
-  rpc GetProfile(GetUserRequest) returns (GetUserResponse);
-  rpc UpdateProfile(UpdateUserRequest) returns (google.protobuf.Empty);
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/register"
+      body: "*"
+    };
+  };
+  rpc Authenticate(AuthRequest) returns (AuthResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/login"
+      body: "*"
+    };
+  };
+  rpc GetProfile(google.protobuf.Empty) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/profile"
+    };
+  };
+  rpc UpdateProfile(UpdateUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/users/profile"
+      body: "*"
+    };
+  };
 }
 
 message RegisterRequest {
@@ -34,10 +54,6 @@ message AuthResponse {
   string token = 1;
 }
 
-message GetUserRequest {
-  int64 user_id = 1;
-}
-
 message GetUserResponse {
   int64 user_id = 1;
   string email = 2;
@@ -46,8 +62,7 @@ message GetUserResponse {
 }
 
 message UpdateUserRequest {
-  int64 user_id = 1;
-  string email = 2;
-  string first_name = 3;
-  string last_name = 4;
+  string email = 1;
+  string first_name = 2;
+  string last_name = 3;
 }

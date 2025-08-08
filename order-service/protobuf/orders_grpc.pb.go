@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.31.1
-// source: protobuf/orders.proto
+// source: orders.proto
 
 package protobuf
 
@@ -32,7 +32,7 @@ const (
 type OrderServiceClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*Order, error)
-	ListUserOrders(ctx context.Context, in *ListOrdersRequest, opts ...grpc.CallOption) (*ListOrdersResponse, error)
+	ListUserOrders(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListOrdersResponse, error)
 	UpdateOrderStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -64,7 +64,7 @@ func (c *orderServiceClient) GetOrder(ctx context.Context, in *GetOrderRequest, 
 	return out, nil
 }
 
-func (c *orderServiceClient) ListUserOrders(ctx context.Context, in *ListOrdersRequest, opts ...grpc.CallOption) (*ListOrdersResponse, error) {
+func (c *orderServiceClient) ListUserOrders(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListOrdersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListOrdersResponse)
 	err := c.cc.Invoke(ctx, OrderService_ListUserOrders_FullMethodName, in, out, cOpts...)
@@ -90,7 +90,7 @@ func (c *orderServiceClient) UpdateOrderStatus(ctx context.Context, in *UpdateSt
 type OrderServiceServer interface {
 	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
 	GetOrder(context.Context, *GetOrderRequest) (*Order, error)
-	ListUserOrders(context.Context, *ListOrdersRequest) (*ListOrdersResponse, error)
+	ListUserOrders(context.Context, *emptypb.Empty) (*ListOrdersResponse, error)
 	UpdateOrderStatus(context.Context, *UpdateStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
@@ -108,7 +108,7 @@ func (UnimplementedOrderServiceServer) CreateOrder(context.Context, *CreateOrder
 func (UnimplementedOrderServiceServer) GetOrder(context.Context, *GetOrderRequest) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) ListUserOrders(context.Context, *ListOrdersRequest) (*ListOrdersResponse, error) {
+func (UnimplementedOrderServiceServer) ListUserOrders(context.Context, *emptypb.Empty) (*ListOrdersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUserOrders not implemented")
 }
 func (UnimplementedOrderServiceServer) UpdateOrderStatus(context.Context, *UpdateStatusRequest) (*emptypb.Empty, error) {
@@ -172,7 +172,7 @@ func _OrderService_GetOrder_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _OrderService_ListUserOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListOrdersRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func _OrderService_ListUserOrders_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: OrderService_ListUserOrders_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).ListUserOrders(ctx, req.(*ListOrdersRequest))
+		return srv.(OrderServiceServer).ListUserOrders(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,5 +232,5 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protobuf/orders.proto",
+	Metadata: "orders.proto",
 }

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.31.1
-// source: protobuf/payments.proto
+// source: payments.proto
 
 package protobuf
 
@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PaymentService_ProcessPayment_FullMethodName   = "/payments.PaymentService/ProcessPayment"
-	PaymentService_GetPaymentStatus_FullMethodName = "/payments.PaymentService/GetPaymentStatus"
+	PaymentService_ProcessPayment_FullMethodName   = "/payment.PaymentService/ProcessPayment"
+	PaymentService_GetPaymentStatus_FullMethodName = "/payment.PaymentService/GetPaymentStatus"
 )
 
 // PaymentServiceClient is the client API for PaymentService service.
@@ -142,7 +142,7 @@ func _PaymentService_GetPaymentStatus_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PaymentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "payments.PaymentService",
+	ServiceName: "payment.PaymentService",
 	HandlerType: (*PaymentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -155,5 +155,5 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protobuf/payments.proto",
+	Metadata: "payments.proto",
 }

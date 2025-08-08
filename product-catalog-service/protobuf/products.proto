@@ -3,14 +3,33 @@ syntax = "proto3";
 option go_package = "/protobuf";
 
 import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
 package product;
 
 service ProductCatalogService {
-  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
-  rpc ListProducts(google.protobuf.Empty) returns (ListProductsResponse);
-  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
-  rpc UpdateProduct(UpdateProductRequest) returns (google.protobuf.Empty);
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/products/{id}"
+    };
+  };
+  rpc ListProducts(google.protobuf.Empty) returns (ListProductsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/products"
+    };
+  };
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/products"
+      body: "*"
+    };
+  };
+  rpc UpdateProduct(UpdateProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/products/{id}"
+      body: "*"
+    };
+  };
   rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty);
   rpc CheckStock(CheckStockRequest) returns (CheckStockResponse);
 }

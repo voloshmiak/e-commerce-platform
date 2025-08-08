@@ -12,7 +12,7 @@ func main() {
 		Brokers:   []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 		Topic:     "topic-A",
 		Partition: 0,
-		MaxBytes:  10e6, // 10MB
+		MaxBytes:  10e6,
 	})
 
 	ns := &service.NotificationService{}

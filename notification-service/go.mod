@@ -1,6 +1,6 @@
 module notification-service
 
-go 1.23.4
+go 1.24.5
 
 require github.com/segmentio/kafka-go v0.4.48
 

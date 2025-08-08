@@ -15,7 +15,7 @@ var Users = []*User{
 	{
 		ID:           1,
 		Email:        "example@email.com",
-		PasswordHash: "$2a$10$EIX/3z5Z1",
+		PasswordHash: "123",
 		FirstName:    "John",
 		LastName:     "Doe",
 		CreatedAt:    time.Now(),
@@ -23,7 +23,7 @@ var Users = []*User{
 	{
 		ID:           2,
 		Email:        "admin@email.com",
-		PasswordHash: "$2a$10$EIX/3z5Z1",
+		PasswordHash: "123",
 		FirstName:    "Admin",
 		LastName:     "User",
 		CreatedAt:    time.Now(),

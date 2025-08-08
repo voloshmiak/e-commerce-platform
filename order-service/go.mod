@@ -3,6 +3,8 @@ module order-service
 go 1.24.5
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.3.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20250528174236-200df99c418a
 	google.golang.org/grpc v1.74.2
 	google.golang.org/protobuf v1.36.6
 )

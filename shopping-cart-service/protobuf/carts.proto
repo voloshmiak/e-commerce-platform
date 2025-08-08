@@ -3,25 +3,41 @@ syntax = "proto3";
 option go_package = "/protobuf";
 
 import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
 package cart;
 
 service ShoppingCartService {
-  rpc GetCart(GetCartRequest) returns (GetCartResponse);
-  rpc AddItem(AddItemRequest) returns (google.protobuf.Empty);
-  rpc UpdateItem(UpdateItemRequest) returns (google.protobuf.Empty);
-  rpc RemoveItem(RemoveItemRequest) returns (google.protobuf.Empty);
-  rpc ClearCart(ClearCartRequest) returns (google.protobuf.Empty);
+  rpc GetCart(google.protobuf.Empty) returns (GetCartResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/cart"
+    };
+  };
+  rpc AddItem(AddItemRequest) returns (AddItemResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/cart/items"
+      body: "*"
+    };
+  };
+  rpc UpdateItem(UpdateItemRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/cart/items/{id}"
+      body: "*"
+    };
+  };
+  rpc RemoveItem(RemoveItemRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/cart/items/{id}"
+    };
+  };
+  rpc ClearCart(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message CartItem {
-  int64 product_id = 1;
+  int64 id = 1;
+  int64 product_id = 2;
   double price = 3;
   int32 quantity = 4;
-}
-
-message GetCartRequest {
-  int64 user_id = 1;
 }
 
 message GetCartResponse {
@@ -29,20 +45,20 @@ message GetCartResponse {
 }
 
 message AddItemRequest {
-  int64 user_id = 1;
-  CartItem item = 2;
+  int64 product_id = 1;
+  double price = 2;
+  int32 quantity = 3;
+}
+
+message AddItemResponse {
+  int64 id = 1;
 }
 
 message UpdateItemRequest {
-  int64 user_id = 1;
-  CartItem item = 2;
+  int64 id = 1;
+  int32 quantity = 2;
 }
 
 message RemoveItemRequest {
-  int64 user_id = 1;
-  int64 product_id = 2;
-}
-
-message ClearCartRequest {
-  int64 user_id = 1;
+  int64 id = 1;
 }
