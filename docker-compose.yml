@@ -18,7 +18,7 @@ services:
     restart: on-failure
 
   product-catalog-service:
-    build: product-service
+    build: ./product-service
     ports:
       - "8082:8080"
     environment:
@@ -32,7 +32,7 @@ services:
     restart: on-failure
 
   shopping-cart-service:
-    build: cart-service
+    build: ./cart-service
     ports:
       - "8083:8080"
     environment:
