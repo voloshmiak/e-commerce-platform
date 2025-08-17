@@ -4,6 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"payment-service/consumer"
 	pb "payment-service/protobuf"
 	"payment-service/service"
 )
@@ -22,6 +23,13 @@ func run() error {
 
 	s := grpc.NewServer()
 	pb.RegisterPaymentServiceServer(s, &service.PaymentService{})
+
+	go func() {
+		err = consumer.ListenForOrderCreated()
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 
 	log.Println("Starting gRPC payment service server on port :8080")
 

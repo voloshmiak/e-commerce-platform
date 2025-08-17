@@ -5,24 +5,26 @@ import (
 	"github.com/segmentio/kafka-go"
 	"log"
 	"notification-service/service"
+	"time"
 )
 
 func main() {
+	time.Sleep(30 * time.Second)
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"localhost:9092", "localhost:9093", "localhost:9094"},
-		Topic:     "topic-A",
-		Partition: 0,
-		MaxBytes:  10e6,
+		Brokers:  []string{"kafka"},
+		Topic:    "orders.created",
+		MaxBytes: 10e6,
 	})
+	defer r.Close()
 
 	ns := &service.NotificationService{}
 
-	log.Println("Starting notification service server")
+	log.Println("Listening got order creation messages...")
 
 	for {
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
-			break
+			log.Println(err)
 		}
 
 		ns.SendNotification(string(m.Value))

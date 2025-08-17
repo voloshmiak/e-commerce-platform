@@ -51,12 +51,6 @@ services:
         config:
           proto: /kong/protos/payment/payments.proto
 
-  # Notification Service
-  - name: notification-service
-    protocol: grpc
-    host: notification-service
-    port: 8080
-
 routes:
   # Product Catalog Routes
   - name: products-list

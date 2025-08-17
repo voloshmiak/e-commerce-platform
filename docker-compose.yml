@@ -18,7 +18,7 @@ services:
     restart: on-failure
 
   product-catalog-service:
-    build: ./product-catalog-service
+    build: product-service
     ports:
       - "8082:8080"
     environment:
@@ -32,7 +32,7 @@ services:
     restart: on-failure
 
   shopping-cart-service:
-    build: ./shopping-cart-service
+    build: cart-service
     ports:
       - "8083:8080"
     environment:
@@ -152,11 +152,16 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.0.0
     ports:
-      - "9092:9092"
+      - "29092:29092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
     networks:
@@ -171,11 +176,11 @@ services:
     networks:
       - ecommerce-network
 
-  kong-dbless:
+  kong-gateway:
     image: '${GW_IMAGE:-kong/kong-gateway:3.11.0.2}'
     read_only: true
     restart: unless-stopped
-    container_name: kong-dbless
+    container_name: kong-gateway
     networks:
       - ecommerce-network
     volumes:
@@ -185,8 +190,8 @@ services:
       - ./product-catalog-service/protobuf:/kong/protos/product-catalog
       - ./shopping-cart-service/protobuf:/kong/protos/shopping-cart
       - ./user-service/protobuf:/kong/protos/user
-      - ./gateway/tmp_volume:/tmp
-      - ./gateway/prefix_volume:/var/run/kong
+      - ./tmp_volume:/tmp
+      - ./prefix_volume:/var/run/kong
     environment:
       KONG_PREFIX: /var/run/kong
       KONG_DATABASE: off

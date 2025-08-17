@@ -7,10 +7,10 @@ import (
 type Status string
 
 const (
-	Pending   Status = "pending"
-	Paid      Status = "paid"
-	Shipped   Status = "shipped"
-	Cancelled Status = "cancelled"
+	Pending   Status = "PENDING"
+	Paid      Status = "PAID"
+	Shipped   Status = "SHIPPED"
+	Cancelled Status = "CANCELLED"
 )
 
 type Order struct {
@@ -52,7 +52,7 @@ var Orders = []*Order{
 	},
 }
 
-func AddOrder(userID int64, items []*OrderItem, shippingAddress string) int64 {
+func AddOrder(userID int64, items []*OrderItem, shippingAddress string) *Order {
 	order := &Order{
 		ID:              int64(len(Orders) + 1),
 		UserID:          userID,
@@ -64,7 +64,7 @@ func AddOrder(userID int64, items []*OrderItem, shippingAddress string) int64 {
 	}
 
 	Orders = append(Orders, order)
-	return order.ID
+	return order
 }
 
 func GetUserOrderByID(userID int64, orderID int64) *Order {

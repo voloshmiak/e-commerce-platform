@@ -4,6 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"product-catalog-service/consumer"
 	pb "product-catalog-service/protobuf"
 	"product-catalog-service/service"
 )
@@ -22,6 +23,13 @@ func run() error {
 
 	s := grpc.NewServer()
 	pb.RegisterProductCatalogServiceServer(s, &service.ProductCatalogService{})
+
+	go func() {
+		err := consumer.ListenForOrderCreated()
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 
 	log.Println("Starting gRPC product catalog service server on port :8080")
 

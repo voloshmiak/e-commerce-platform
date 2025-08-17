@@ -11,10 +11,10 @@ type PaymentService struct {
 }
 
 func (s *PaymentService) ProcessPayment(_ context.Context, r *pb.ProcessPaymentRequest) (*pb.ProcessPaymentResponse, error) {
-	transactionID := data.AddTransaction(r.GetOrderId(), r.GetAmount(), r.GetCurrency().String(), r.GetPaymentMethod().String())
+	transaction := data.AddTransaction(r.GetOrderId(), r.GetAmount(), r.GetCurrency().String(), r.GetPaymentMethod().String())
 
 	return &pb.ProcessPaymentResponse{
-		TransactionId: transactionID,
+		TransactionId: transaction.ID,
 	}, nil
 }
 

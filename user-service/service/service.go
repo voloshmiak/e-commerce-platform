@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strconv"
+	"strings"
 	"time"
 	"user-service/data"
 	pb "user-service/protobuf"
@@ -35,6 +35,8 @@ func (s *UserService) Register(_ context.Context, r *pb.RegisterRequest) (*pb.Re
 
 func (s *UserService) Authenticate(_ context.Context, r *pb.AuthRequest) (*pb.AuthResponse, error) {
 	user := data.GetUserByEmail(r.GetEmail())
+
+	fmt.Println(user)
 
 	if user.PasswordHash != r.GetPassword() {
 		return nil, errors.New("invalid password")
@@ -84,17 +86,36 @@ func (s *UserService) UpdateProfile(ctx context.Context, r *pb.UpdateUserRequest
 }
 
 func getUserIDFromContext(ctx context.Context) (int, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
+	mt, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return 0, status.Error(codes.Unauthenticated, "missing metadata in context")
+		return 0, fmt.Errorf("missing metadata in context")
 	}
 
-	userID := md["user-id"][0]
+	bearedToken := mt.Get("Authorization")[0]
 
-	userIDInt, err := strconv.Atoi(userID)
+	tokenString := strings.TrimPrefix(bearedToken, "Bearer ")
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+
 	if err != nil {
-		return 0, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid user ID: %v", err))
+		return 0, err
 	}
+
+	claims := token.Claims.(jwt.MapClaims)
+
+	userID, ok := claims["user-id"]
+	if !ok {
+		return 0, fmt.Errorf("user-id not found in token claims")
+	}
+
+	userIDFloat, ok := userID.(float64)
+	if !ok {
+		return 0, fmt.Errorf("user-id is not a valid float64")
+	}
+
+	userIDInt := int(userIDFloat)
 
 	return userIDInt, nil
 }

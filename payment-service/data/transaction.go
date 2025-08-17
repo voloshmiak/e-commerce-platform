@@ -99,7 +99,7 @@ func GetTransactionByID(id int64) *Transaction {
 	return nil
 }
 
-func AddTransaction(orderID int64, amount float64, currency, paymentMethod string) int64 {
+func AddTransaction(orderID int64, amount float64, currency, paymentMethod string) *Transaction {
 	transaction := &Transaction{
 		ID:                   int64(len(Transactions) + 1),
 		OrderID:              orderID,
@@ -113,5 +113,5 @@ func AddTransaction(orderID int64, amount float64, currency, paymentMethod strin
 
 	Transactions = append(Transactions, transaction)
 
-	return transaction.ID
+	return transaction
 }
