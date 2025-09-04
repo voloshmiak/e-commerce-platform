@@ -12,14 +12,12 @@ func main() {
 	time.Sleep(30 * time.Second)
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  []string{"kafka"},
-		Topic:    "orders.created",
+		Topic:    "payment.succeeded",
 		MaxBytes: 10e6,
 	})
 	defer r.Close()
 
 	ns := &service.NotificationService{}
-
-	log.Println("Listening got order creation messages...")
 
 	for {
 		m, err := r.ReadMessage(context.Background())

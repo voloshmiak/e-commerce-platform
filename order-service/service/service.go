@@ -10,17 +10,19 @@ import (
 	"strconv"
 )
 
-type OrderService struct{}
+type OrderService struct {
+}
 
-func (s *OrderService) CreateOrder(ctx context.Context, userID int, items []*data.OrderItem, shippingAddress string) (int, error) {
+func (s *OrderService) CreateOrderSaga(ctx context.Context, userID int, items []*data.OrderItem, shippingAddress string) (int, string, error) {
+	log.Println("Creating order..")
 	order := data.AddOrder(int64(userID), items, shippingAddress)
 
 	if err := produceMessage(ctx, order, strconv.Itoa(int(order.ID))); err != nil {
 		log.Println(err)
-		return 0, err
+		return 0, "", err
 	}
 
-	return int(order.ID), nil
+	return int(order.ID), string(order.Status), nil
 }
 
 func (s *OrderService) GetOrder(userID int, orderID int64) (*data.Order, error) {

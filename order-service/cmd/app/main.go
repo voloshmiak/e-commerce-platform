@@ -1,9 +1,9 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"order-service/consumer"
@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -22,29 +23,28 @@ func main() {
 }
 
 func run() error {
+	time.Sleep(50 * time.Second)
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		return err
 	}
 
+	conn, err := grpc.NewClient("shopping-cart-service:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	cartClient := pb.NewShoppingCartServiceClient(conn)
 	svc := &service.OrderService{}
-	cons := &consumer.OrderConsumer{}
+	cons := &consumer.OrderConsumer{Service: svc}
 
 	s := grpc.NewServer()
-	pb.RegisterOrderServiceServer(s, server.NewOrderServer(svc))
-
-	_, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	pb.RegisterOrderServiceServer(s, server.NewOrderServer(svc, cartClient))
 
 	// Kafka consumer
-	go func() {
-		log.Println("Starting Kafka consumer for order created events...")
-
-		err := cons.HandleOrderCreated()
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	go cons.ListenForSucceededPayment()
+	go cons.ListenForStockFailed()
 
 	// gRPC server
 	go func() {

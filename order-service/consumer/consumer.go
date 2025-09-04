@@ -10,16 +10,13 @@ import (
 	"time"
 )
 
-type Payload struct {
-	counter int
-	id      int64
-}
-
 type OrderConsumer struct {
-	service *service.OrderService
+	Service *service.OrderService
 }
 
-func (oc *OrderConsumer) listenForSucceededPayment(payload *Payload) error {
+func (oc *OrderConsumer) ListenForSucceededPayment() {
+	time.Sleep(30 * time.Second)
+
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  []string{"kafka"},
 		Topic:    "payment.succeeded",
@@ -27,30 +24,7 @@ func (oc *OrderConsumer) listenForSucceededPayment(payload *Payload) error {
 	})
 	defer r.Close()
 
-	log.Println("Listening for succeeded payment messages...")
-
-	for {
-		m, err := r.ReadMessage(context.Background())
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		log.Println("Part completed: payment succeeded message received:", string(m.Value))
-
-		payload.counter++
-	}
-}
-
-func (oc *OrderConsumer) listenForFailedPayment(payload *Payload) error {
-	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  []string{"kafka"},
-		Topic:    "payment.failed",
-		MaxBytes: 10e6,
-	})
-	defer r.Close()
-
-	log.Println("Listening for failed payments...")
+	log.Println("Listening for payment.succeeded messages...")
 
 	for {
 		m, err := r.ReadMessage(context.Background())
@@ -66,47 +40,13 @@ func (oc *OrderConsumer) listenForFailedPayment(payload *Payload) error {
 			continue
 		}
 
-		oc.service.UpdateOrderStatus(int64(order["id"].(float64)), string(data.Cancelled))
-
-		log.Println("Payment failed for order ID:", order["id"])
-
-		payload.counter = 0
+		oc.Service.UpdateOrderStatus(int64(order["id"].(float64)), string(data.Paid))
 	}
 }
 
-func (oc *OrderConsumer) listenForStockReserved(payload *Payload) error {
-	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  []string{"kafka"},
-		Topic:    "stock.reserved",
-		MaxBytes: 10e6,
-	})
-	defer r.Close()
+func (oc *OrderConsumer) ListenForStockFailed() {
+	time.Sleep(30 * time.Second)
 
-	log.Println("Listening for stock reserved...")
-
-	for {
-		m, err := r.ReadMessage(context.Background())
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		var order map[string]interface{}
-		err = json.Unmarshal(m.Value, &order)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		payload.id = int64(order["id"].(float64))
-
-		log.Println("Part completed: stock reserved message received:", string(m.Value))
-
-		payload.counter++
-	}
-}
-
-func (oc *OrderConsumer) listenForStockFailed(payload *Payload) error {
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  []string{"kafka"},
 		Topic:    "stock.reservation.failed",
@@ -114,7 +54,7 @@ func (oc *OrderConsumer) listenForStockFailed(payload *Payload) error {
 	})
 	defer r.Close()
 
-	log.Println("Listening for stock reservation failed...")
+	log.Println("Listening for stock.reservation.failed messages...")
 
 	for {
 		m, err := r.ReadMessage(context.Background())
@@ -130,49 +70,8 @@ func (oc *OrderConsumer) listenForStockFailed(payload *Payload) error {
 			continue
 		}
 
-		oc.service.UpdateOrderStatus(int64(order["id"].(float64)), string(data.Cancelled))
+		oc.Service.UpdateOrderStatus(int64(order["id"].(float64)), string(data.Cancelled))
 
 		log.Println("Stock reservation failed for order ID:", order["id"])
-
-		payload.counter = 0
-	}
-}
-
-func (oc *OrderConsumer) HandleOrderCreated() error {
-	time.Sleep(30 * time.Second)
-	var payload Payload
-	go func() {
-		err := oc.listenForStockReserved(&payload)
-		if err != nil {
-			log.Println("Error listening for stock reserved:", err)
-		}
-	}()
-	go func() {
-		err := oc.listenForSucceededPayment(&payload)
-		if err != nil {
-			log.Println("Error listening for stock reservation failed:", err)
-		}
-	}()
-	go func() {
-		err := oc.listenForFailedPayment(&payload)
-		if err != nil {
-			log.Println(err)
-		}
-	}()
-	go func() {
-		err := oc.listenForStockFailed(&payload)
-		if err != nil {
-			log.Println(err)
-		}
-	}()
-
-	log.Println("Waiting for saga to complete...")
-
-	for {
-		if payload.counter == 2 {
-			oc.service.UpdateOrderStatus(payload.id, string(data.Paid))
-
-			payload.counter = 0
-		}
 	}
 }

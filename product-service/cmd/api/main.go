@@ -4,9 +4,13 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"os"
+	"os/signal"
 	"product-catalog-service/consumer"
 	pb "product-catalog-service/protobuf"
+	"product-catalog-service/server"
 	"product-catalog-service/service"
+	"syscall"
 )
 
 func main() {
@@ -21,21 +25,33 @@ func run() error {
 		return err
 	}
 
-	s := grpc.NewServer()
-	pb.RegisterProductCatalogServiceServer(s, &service.ProductCatalogService{})
+	svc := &service.ProductCatalogService{}
+	cons := &consumer.ProductConsumer{Service: svc}
 
+	s := grpc.NewServer()
+	pb.RegisterProductCatalogServiceServer(s, server.NewProductCatalogServer(svc))
+
+	// Kafka consumer
+	go cons.ListenForOrderCreated()
+	go cons.ListenForFailedPayment()
+
+	// gRPC server
 	go func() {
-		err := consumer.ListenForOrderCreated()
-		if err != nil {
+		log.Println("Starting gRPC product catalog service server on port :8080")
+
+		if err = s.Serve(listener); err != nil {
 			log.Println(err)
 		}
 	}()
 
-	log.Println("Starting gRPC product catalog service server on port :8080")
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	if err = s.Serve(listener); err != nil {
-		return err
-	}
+	<-quit
+
+	log.Println("Received shutdown signal, stopping server...")
+
+	s.GracefulStop()
 
 	return nil
 }

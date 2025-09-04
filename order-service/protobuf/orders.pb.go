@@ -138,7 +138,6 @@ func (x *OrderItem) GetPrice() float64 {
 type CreateOrderRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	ShippingAddress string                 `protobuf:"bytes,1,opt,name=shipping_address,json=shippingAddress,proto3" json:"shipping_address,omitempty"`
-	Items           []*OrderItem           `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -180,16 +179,10 @@ func (x *CreateOrderRequest) GetShippingAddress() string {
 	return ""
 }
 
-func (x *CreateOrderRequest) GetItems() []*OrderItem {
-	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
 type CreateOrderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -229,6 +222,13 @@ func (x *CreateOrderResponse) GetId() int64 {
 		return x.Id
 	}
 	return 0
+}
+
+func (x *CreateOrderResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
 }
 
 type Order struct {
@@ -464,12 +464,12 @@ const file_orders_proto_rawDesc = "" +
 	"\n" +
 	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1a\n" +
 	"\bquantity\x18\x02 \x01(\x03R\bquantity\x12\x14\n" +
-	"\x05price\x18\x03 \x01(\x01R\x05price\"g\n" +
+	"\x05price\x18\x03 \x01(\x01R\x05price\"?\n" +
 	"\x12CreateOrderRequest\x12)\n" +
-	"\x10shipping_address\x18\x01 \x01(\tR\x0fshippingAddress\x12&\n" +
-	"\x05items\x18\x02 \x03(\v2\x10.order.OrderItemR\x05items\"%\n" +
+	"\x10shipping_address\x18\x01 \x01(\tR\x0fshippingAddress\"=\n" +
 	"\x13CreateOrderResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"\xcb\x01\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\"\xcb\x01\n" +
 	"\x05Order\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12%\n" +
@@ -522,24 +522,23 @@ var file_orders_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),       // 8: google.protobuf.Empty
 }
 var file_orders_proto_depIdxs = []int32{
-	1, // 0: order.CreateOrderRequest.items:type_name -> order.OrderItem
-	0, // 1: order.Order.status:type_name -> order.Status
-	1, // 2: order.Order.items:type_name -> order.OrderItem
-	4, // 3: order.ListOrdersResponse.orders:type_name -> order.Order
-	0, // 4: order.UpdateStatusRequest.status:type_name -> order.Status
-	2, // 5: order.OrderService.CreateOrder:input_type -> order.CreateOrderRequest
-	5, // 6: order.OrderService.GetOrder:input_type -> order.GetOrderRequest
-	8, // 7: order.OrderService.ListUserOrders:input_type -> google.protobuf.Empty
-	7, // 8: order.OrderService.UpdateOrderStatus:input_type -> order.UpdateStatusRequest
-	3, // 9: order.OrderService.CreateOrder:output_type -> order.CreateOrderResponse
-	4, // 10: order.OrderService.GetOrder:output_type -> order.Order
-	6, // 11: order.OrderService.ListUserOrders:output_type -> order.ListOrdersResponse
-	8, // 12: order.OrderService.UpdateOrderStatus:output_type -> google.protobuf.Empty
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0, // 0: order.Order.status:type_name -> order.Status
+	1, // 1: order.Order.items:type_name -> order.OrderItem
+	4, // 2: order.ListOrdersResponse.orders:type_name -> order.Order
+	0, // 3: order.UpdateStatusRequest.status:type_name -> order.Status
+	2, // 4: order.OrderService.CreateOrder:input_type -> order.CreateOrderRequest
+	5, // 5: order.OrderService.GetOrder:input_type -> order.GetOrderRequest
+	8, // 6: order.OrderService.ListUserOrders:input_type -> google.protobuf.Empty
+	7, // 7: order.OrderService.UpdateOrderStatus:input_type -> order.UpdateStatusRequest
+	3, // 8: order.OrderService.CreateOrder:output_type -> order.CreateOrderResponse
+	4, // 9: order.OrderService.GetOrder:output_type -> order.Order
+	6, // 10: order.OrderService.ListUserOrders:output_type -> order.ListOrdersResponse
+	8, // 11: order.OrderService.UpdateOrderStatus:output_type -> google.protobuf.Empty
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_orders_proto_init() }

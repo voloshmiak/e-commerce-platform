@@ -3,8 +3,7 @@
 .vscode/
 
 # Kong temporary directories
-prefix_volume/
-tmp_volume/
+gateway/kong-data
 
 # Common temporary files
 *.log

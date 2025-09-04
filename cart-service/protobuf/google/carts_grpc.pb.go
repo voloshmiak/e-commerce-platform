@@ -4,7 +4,7 @@
 // - protoc             v6.31.1
 // source: carts.proto
 
-package protobuf
+package google
 
 import (
 	context "context"
@@ -12,6 +12,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	protobuf2 "shopping-cart-service/protobuf"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -31,10 +32,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ShoppingCartServiceClient interface {
-	GetCart(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCartResponse, error)
-	AddItem(ctx context.Context, in *AddItemRequest, opts ...grpc.CallOption) (*AddItemResponse, error)
-	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	RemoveItem(ctx context.Context, in *RemoveItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetCart(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*protobuf2.GetCartResponse, error)
+	AddItem(ctx context.Context, in *protobuf2.AddItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateItem(ctx context.Context, in *protobuf2.UpdateItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveItem(ctx context.Context, in *protobuf2.RemoveItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ClearCart(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -46,9 +47,9 @@ func NewShoppingCartServiceClient(cc grpc.ClientConnInterface) ShoppingCartServi
 	return &shoppingCartServiceClient{cc}
 }
 
-func (c *shoppingCartServiceClient) GetCart(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCartResponse, error) {
+func (c *shoppingCartServiceClient) GetCart(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*protobuf2.GetCartResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetCartResponse)
+	out := new(protobuf2.GetCartResponse)
 	err := c.cc.Invoke(ctx, ShoppingCartService_GetCart_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -56,9 +57,9 @@ func (c *shoppingCartServiceClient) GetCart(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
-func (c *shoppingCartServiceClient) AddItem(ctx context.Context, in *AddItemRequest, opts ...grpc.CallOption) (*AddItemResponse, error) {
+func (c *shoppingCartServiceClient) AddItem(ctx context.Context, in *protobuf2.AddItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AddItemResponse)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ShoppingCartService_AddItem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -66,7 +67,7 @@ func (c *shoppingCartServiceClient) AddItem(ctx context.Context, in *AddItemRequ
 	return out, nil
 }
 
-func (c *shoppingCartServiceClient) UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *shoppingCartServiceClient) UpdateItem(ctx context.Context, in *protobuf2.UpdateItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ShoppingCartService_UpdateItem_FullMethodName, in, out, cOpts...)
@@ -76,7 +77,7 @@ func (c *shoppingCartServiceClient) UpdateItem(ctx context.Context, in *UpdateIt
 	return out, nil
 }
 
-func (c *shoppingCartServiceClient) RemoveItem(ctx context.Context, in *RemoveItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *shoppingCartServiceClient) RemoveItem(ctx context.Context, in *protobuf2.RemoveItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ShoppingCartService_RemoveItem_FullMethodName, in, out, cOpts...)
@@ -100,10 +101,10 @@ func (c *shoppingCartServiceClient) ClearCart(ctx context.Context, in *emptypb.E
 // All implementations must embed UnimplementedShoppingCartServiceServer
 // for forward compatibility.
 type ShoppingCartServiceServer interface {
-	GetCart(context.Context, *emptypb.Empty) (*GetCartResponse, error)
-	AddItem(context.Context, *AddItemRequest) (*AddItemResponse, error)
-	UpdateItem(context.Context, *UpdateItemRequest) (*emptypb.Empty, error)
-	RemoveItem(context.Context, *RemoveItemRequest) (*emptypb.Empty, error)
+	GetCart(context.Context, *emptypb.Empty) (*protobuf2.GetCartResponse, error)
+	AddItem(context.Context, *protobuf2.AddItemRequest) (*emptypb.Empty, error)
+	UpdateItem(context.Context, *protobuf2.UpdateItemRequest) (*emptypb.Empty, error)
+	RemoveItem(context.Context, *protobuf2.RemoveItemRequest) (*emptypb.Empty, error)
 	ClearCart(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedShoppingCartServiceServer()
 }
@@ -115,16 +116,16 @@ type ShoppingCartServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedShoppingCartServiceServer struct{}
 
-func (UnimplementedShoppingCartServiceServer) GetCart(context.Context, *emptypb.Empty) (*GetCartResponse, error) {
+func (UnimplementedShoppingCartServiceServer) GetCart(context.Context, *emptypb.Empty) (*protobuf2.GetCartResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCart not implemented")
 }
-func (UnimplementedShoppingCartServiceServer) AddItem(context.Context, *AddItemRequest) (*AddItemResponse, error) {
+func (UnimplementedShoppingCartServiceServer) AddItem(context.Context, *protobuf2.AddItemRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddItem not implemented")
 }
-func (UnimplementedShoppingCartServiceServer) UpdateItem(context.Context, *UpdateItemRequest) (*emptypb.Empty, error) {
+func (UnimplementedShoppingCartServiceServer) UpdateItem(context.Context, *protobuf2.UpdateItemRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateItem not implemented")
 }
-func (UnimplementedShoppingCartServiceServer) RemoveItem(context.Context, *RemoveItemRequest) (*emptypb.Empty, error) {
+func (UnimplementedShoppingCartServiceServer) RemoveItem(context.Context, *protobuf2.RemoveItemRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveItem not implemented")
 }
 func (UnimplementedShoppingCartServiceServer) ClearCart(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
@@ -170,7 +171,7 @@ func _ShoppingCartService_GetCart_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _ShoppingCartService_AddItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddItemRequest)
+	in := new(protobuf2.AddItemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -182,13 +183,13 @@ func _ShoppingCartService_AddItem_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: ShoppingCartService_AddItem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShoppingCartServiceServer).AddItem(ctx, req.(*AddItemRequest))
+		return srv.(ShoppingCartServiceServer).AddItem(ctx, req.(*protobuf2.AddItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ShoppingCartService_UpdateItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateItemRequest)
+	in := new(protobuf2.UpdateItemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -200,13 +201,13 @@ func _ShoppingCartService_UpdateItem_Handler(srv interface{}, ctx context.Contex
 		FullMethod: ShoppingCartService_UpdateItem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShoppingCartServiceServer).UpdateItem(ctx, req.(*UpdateItemRequest))
+		return srv.(ShoppingCartServiceServer).UpdateItem(ctx, req.(*protobuf2.UpdateItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ShoppingCartService_RemoveItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveItemRequest)
+	in := new(protobuf2.RemoveItemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -218,7 +219,7 @@ func _ShoppingCartService_RemoveItem_Handler(srv interface{}, ctx context.Contex
 		FullMethod: ShoppingCartService_RemoveItem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShoppingCartServiceServer).RemoveItem(ctx, req.(*RemoveItemRequest))
+		return srv.(ShoppingCartServiceServer).RemoveItem(ctx, req.(*protobuf2.RemoveItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

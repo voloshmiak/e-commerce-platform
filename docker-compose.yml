@@ -143,7 +143,12 @@ services:
       - ecommerce-network
 
   redis:
-    image: redis:6
+    image: redis:latest
+    environment:
+      - REDIS_USER=user
+      - REDIS_USER_PASSWORD=password
+    ports:
+       - "6379:6379"
     volumes:
       - redis-data:/data
     networks:
@@ -187,11 +192,11 @@ services:
       - ./gateway:/kong/declarative/
       - ./order-service/protobuf:/kong/protos/order
       - ./payment-service/protobuf:/kong/protos/payment
-      - ./product-catalog-service/protobuf:/kong/protos/product-catalog
-      - ./shopping-cart-service/protobuf:/kong/protos/shopping-cart
+      - ./product-service/protobuf:/kong/protos/product-catalog
+      - ./cart-service/protobuf:/kong/protos/shopping-cart
       - ./user-service/protobuf:/kong/protos/user
-      - ./tmp_volume:/tmp
-      - ./prefix_volume:/var/run/kong
+      - ./gateway/kong-data/tmp:/tmp
+      - ./gateway/kong-data/prefix:/var/run/kong
     environment:
       KONG_PREFIX: /var/run/kong
       KONG_DATABASE: off

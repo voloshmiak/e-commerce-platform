@@ -1,38 +1,15 @@
 package service
 
-import (
-	"context"
-	"payment-service/data"
-	pb "payment-service/protobuf"
-)
+import "payment-service/data"
 
-type PaymentService struct {
-	pb.UnimplementedPaymentServiceServer
+type PaymentService struct{}
+
+func (s *PaymentService) ProcessPayment(orderID int64, amount float64, currency string, paymentMethod string) (int64, error) {
+	transaction := data.AddTransaction(orderID, amount, currency, paymentMethod)
+	return transaction.ID, nil
 }
 
-func (s *PaymentService) ProcessPayment(_ context.Context, r *pb.ProcessPaymentRequest) (*pb.ProcessPaymentResponse, error) {
-	transaction := data.AddTransaction(r.GetOrderId(), r.GetAmount(), r.GetCurrency().String(), r.GetPaymentMethod().String())
-
-	return &pb.ProcessPaymentResponse{
-		TransactionId: transaction.ID,
-	}, nil
-}
-
-func (s *PaymentService) GetPaymentStatus(_ context.Context, r *pb.GetPaymentStatusRequest) (*pb.GetPaymentStatusResponse, error) {
-	transaction := data.GetTransactionByID(r.GetTransactionId())
-	var status pb.Status
-	switch transaction.Status {
-	case data.Pending:
-		status = pb.Status_PENDING
-	case data.Completed:
-		status = pb.Status_COMPLETED
-	case data.Failed:
-		status = pb.Status_FAILED
-	case data.Refunded:
-		status = pb.Status_REFUNDED
-	}
-
-	return &pb.GetPaymentStatusResponse{
-		Status: status,
-	}, nil
+func (s *PaymentService) GetPaymentStatus(transactionID int64) data.Status {
+	transaction := data.GetTransactionByID(transactionID)
+	return transaction.Status
 }

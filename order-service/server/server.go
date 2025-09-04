@@ -12,6 +12,7 @@ import (
 	"order-service/data"
 	pb "order-service/protobuf"
 	"order-service/service"
+	"strconv"
 	"strings"
 )
 
@@ -21,12 +22,14 @@ const (
 
 type OrderServer struct {
 	pb.UnimplementedOrderServiceServer
-	service *service.OrderService
+	Service    *service.OrderService
+	CartClient pb.ShoppingCartServiceClient
 }
 
-func NewOrderServer(s *service.OrderService) *OrderServer {
+func NewOrderServer(s *service.OrderService, c pb.ShoppingCartServiceClient) *OrderServer {
 	return &OrderServer{
-		service: s,
+		Service:    s,
+		CartClient: c,
 	}
 }
 
@@ -36,24 +39,32 @@ func (s *OrderServer) CreateOrder(ctx context.Context, r *pb.CreateOrderRequest)
 		log.Println(err)
 		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
 	}
+	md := metadata.Pairs("user-id", strconv.Itoa(userID))
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	resp, err := s.CartClient.GetCart(ctx, &emptypb.Empty{})
+	if err != nil {
+		log.Println("error", err)
+		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to get cart: %v", err))
+	}
 
-	items := make([]*data.OrderItem, len(r.GetItems()))
-	for i, item := range r.GetItems() {
+	items := make([]*data.OrderItem, len(resp.GetItems()))
+	for i, item := range resp.GetItems() {
 		items[i] = &data.OrderItem{
 			ProductID: item.GetProductId(),
-			Quantity:  item.GetQuantity(),
+			Quantity:  int64(item.GetQuantity()),
 			Price:     item.GetPrice(),
 		}
 	}
 
-	orderID, err := s.service.CreateOrder(ctx, userID, items, r.GetShippingAddress())
+	orderID, orderStatus, err := s.Service.CreateOrderSaga(ctx, userID, items, r.GetShippingAddress())
 	if err != nil {
 		log.Println(err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create order: %v", err))
 	}
 
 	return &pb.CreateOrderResponse{
-		Id: int64(orderID),
+		Id:     int64(orderID),
+		Status: orderStatus,
 	}, nil
 }
 
@@ -63,7 +74,7 @@ func (s *OrderServer) GetOrder(ctx context.Context, r *pb.GetOrderRequest) (*pb.
 		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
 	}
 
-	order, err := s.service.GetOrder(userID, r.GetId())
+	order, err := s.Service.GetOrder(userID, r.GetId())
 	if err != nil {
 		log.Println(err)
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("failed to get order: %v", err))
@@ -94,7 +105,7 @@ func (s *OrderServer) ListUserOrders(ctx context.Context, _ *emptypb.Empty) (*pb
 		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
 	}
 
-	orders := s.service.GetUserOrders(userID)
+	orders := s.Service.GetUserOrders(userID)
 
 	var ordersResponse []*pb.Order
 	for _, order := range orders {
@@ -122,7 +133,7 @@ func (s *OrderServer) ListUserOrders(ctx context.Context, _ *emptypb.Empty) (*pb
 }
 
 func (s *OrderServer) UpdateOrderStatus(_ context.Context, r *pb.UpdateStatusRequest) (*emptypb.Empty, error) {
-	s.service.UpdateOrderStatus(r.GetId(), string(r.GetStatus()))
+	s.Service.UpdateOrderStatus(r.GetId(), string(r.GetStatus()))
 
 	return &emptypb.Empty{}, nil
 }

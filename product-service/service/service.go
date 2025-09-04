@@ -1,93 +1,57 @@
 package service
 
 import (
-	"context"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"product-catalog-service/data"
-	pb "product-catalog-service/protobuf"
 )
 
 type ProductCatalogService struct {
-	pb.UnimplementedProductCatalogServiceServer
 }
 
-func (s *ProductCatalogService) GetProduct(_ context.Context, r *pb.GetProductRequest) (*pb.GetProductResponse, error) {
-	product := data.GetProductByID(r.GetId())
+func (s *ProductCatalogService) GetProduct(id int64) *data.Product {
+	product := data.GetProductByID(id)
 
-	return &pb.GetProductResponse{Product: &pb.Product{
-		Id:          product.ID,
-		Sku:         product.Sku,
-		Name:        product.Name,
-		Description: product.Description,
-		Price:       product.Price,
-		Currency:    pb.Currency(pb.Currency_value[string(product.Currency)]),
-		Stock:       product.StockQuantity,
-		Category:    product.Category,
-		ImageUrl:    product.ImageURL,
-		IsActive:    product.IsActive,
-	}}, nil
+	return product
 }
 
-func (s *ProductCatalogService) ListProducts(_ context.Context, _ *emptypb.Empty) (*pb.ListProductsResponse, error) {
+func (s *ProductCatalogService) ListProducts() []*data.Product {
 	products := data.GetAllProducts()
 
-	var productList []*pb.Product
-	for _, product := range products {
-		productList = append(productList, &pb.Product{
-			Id:          product.ID,
-			Sku:         product.Sku,
-			Name:        product.Name,
-			Description: product.Description,
-			Price:       product.Price,
-			Currency:    pb.Currency(pb.Currency_value[string(product.Currency)]),
-			Stock:       product.StockQuantity,
-			Category:    product.Category,
-			ImageUrl:    product.ImageURL,
-			IsActive:    product.IsActive,
-		})
-	}
-
-	return &pb.ListProductsResponse{Products: productList}, nil
+	return products
 }
 
-func (s *ProductCatalogService) CreateProduct(_ context.Context, r *pb.CreateProductRequest) (*pb.CreateProductResponse, error) {
+func (s *ProductCatalogService) CreateProduct(name, description string, price float64, currency string, stockQuantity int32, category, imageURL string, attributes map[string]string) int64 {
 	productID := data.AddProduct(
-		r.GetName(),
-		r.GetDescription(),
-		r.GetPrice(),
-		data.Currency(r.GetCurrency().String()),
-		r.GetStock(),
-		r.GetCategory(),
-		r.GetImageUrl(),
-		r.GetAttributes(),
+		name,
+		description,
+		price,
+		data.Currency(currency),
+		stockQuantity,
+		category,
+		imageURL,
+		attributes,
 	)
 
-	return &pb.CreateProductResponse{Id: productID}, nil
+	return productID
 }
 
-func (s *ProductCatalogService) UpdateProduct(_ context.Context, r *pb.UpdateProductRequest) (*emptypb.Empty, error) {
+func (s *ProductCatalogService) UpdateProduct(id int64, name, description string, price float64, currency string, stockQuantity int32, category, imageURL string, attributes map[string]string) {
 	data.UpdateProduct(
-		r.GetId(),
-		r.GetName(),
-		r.GetDescription(),
-		r.GetPrice(),
-		data.Currency(r.GetCurrency().String()),
-		r.GetStock(),
-		r.GetCategory(),
-		r.GetImageUrl(),
-		r.GetAttributes(),
+		id,
+		name,
+		description,
+		price,
+		data.Currency(currency),
+		stockQuantity,
+		category,
+		imageURL,
+		attributes,
 	)
-
-	return &emptypb.Empty{}, nil
 }
 
-func (s *ProductCatalogService) DeleteProduct(_ context.Context, r *pb.DeleteProductRequest) (*emptypb.Empty, error) {
-	data.DeleteProduct(r.GetId())
-
-	return &emptypb.Empty{}, nil
+func (s *ProductCatalogService) DeleteProduct(id int64) {
+	data.DeleteProduct(id)
 }
 
-func (s *ProductCatalogService) CheckStock(_ context.Context, r *pb.CheckStockRequest) (*pb.CheckStockResponse, error) {
-	inStock := data.CheckAvailability(r.GetId(), r.GetQuantity())
-	return &pb.CheckStockResponse{InStock: inStock}, nil
+func (s *ProductCatalogService) CheckStock(id int64, stock int32) bool {
+	return data.CheckAvailability(id, stock)
 }

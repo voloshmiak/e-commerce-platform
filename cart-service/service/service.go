@@ -1,100 +1,50 @@
 package service
 
 import (
-	"context"
-	"fmt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
-	"shopping-cart-service/data"
-	pb "shopping-cart-service/protobuf"
+	"log"
+	"shopping-cart-service/repository"
 	"strconv"
 )
 
 type ShoppingCartService struct {
-	pb.UnimplementedShoppingCartServiceServer
+	Repository repository.CartRepository
 }
 
-func (s *ShoppingCartService) GetCart(ctx context.Context, _ *emptypb.Empty) (*pb.GetCartResponse, error) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
+func NewShoppingCartService(repository repository.CartRepository) *ShoppingCartService {
+	return &ShoppingCartService{
+		Repository: repository,
 	}
-
-	cart := data.GetCart(int64(userID))
-
-	items := make([]*pb.CartItem, len(cart.Items))
-	for i, item := range cart.Items {
-		items[i] = &pb.CartItem{
-			Id:        item.ID,
-			ProductId: item.ProductID,
-			Quantity:  item.Quantity,
-			Price:     item.Price,
-		}
-	}
-
-	return &pb.GetCartResponse{
-		Items: items,
-	}, nil
 }
 
-func (s *ShoppingCartService) AddItem(ctx context.Context, r *pb.AddItemRequest) (*pb.AddItemResponse, error) {
-	userID, err := getUserIDFromContext(ctx)
+func (s *ShoppingCartService) GetCart(userID int64) (map[string]string, error) {
+	items, err := s.Repository.GetCart(strconv.FormatInt(userID, 10))
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
+		return nil, err
 	}
-
-	itemID := data.AddItem(int64(userID), r.GetProductId(), r.GetQuantity(), r.GetPrice())
-
-	return &pb.AddItemResponse{
-		Id: itemID,
-	}, nil
+	return items, nil
 }
 
-func (s *ShoppingCartService) UpdateItem(ctx context.Context, r *pb.UpdateItemRequest) (*emptypb.Empty, error) {
-	userID, err := getUserIDFromContext(ctx)
+func (s *ShoppingCartService) AddItem(userID, productID int64, quantity int32, price float64) error {
+	err := s.Repository.AddItem(strconv.FormatInt(userID, 10),
+		strconv.FormatInt(productID, 10),
+		strconv.Itoa(int(quantity)),
+		strconv.FormatFloat(price, 'f', 2, 64),
+	)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
+		log.Println(err)
+		return err
 	}
-
-	data.UpdateItemQuantity(int64(userID), r.GetId(), r.GetQuantity())
-
-	return &emptypb.Empty{}, nil
+	return nil
 }
 
-func (s *ShoppingCartService) RemoveItem(ctx context.Context, r *pb.RemoveItemRequest) (*emptypb.Empty, error) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
-	}
-	data.RemoveItem(int64(userID), r.GetId())
+func (s *ShoppingCartService) UpdateItem() {
 
-	return &emptypb.Empty{}, nil
 }
 
-func (s *ShoppingCartService) ClearCart(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "failed to get user ID from context")
-	}
-	data.ClearCart(int64(userID))
+func (s *ShoppingCartService) RemoveItem() {
 
-	return &emptypb.Empty{}, nil
 }
 
-func getUserIDFromContext(ctx context.Context) (int, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return 0, status.Error(codes.Unauthenticated, "missing metadata in context")
-	}
+func (s *ShoppingCartService) ClearCart() {
 
-	userID := md["user-id"][0]
-
-	userIDInt, err := strconv.Atoi(userID)
-	if err != nil {
-		return 0, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid user ID: %v", err))
-	}
-
-	return userIDInt, nil
 }
