@@ -15,7 +15,7 @@ The primary goal of this project is to implement a robust backend ecosystem base
 - **Automated Discovery:** Services dynamically register and discover each other using a Service Discovery tool.
 - **CI/CD Ready:** The project is structured to easily integrate with CI/CD pipelines for automated builds and deployments.
 
-## Technology Stack
+##  ⚙️ Technology Stack
 
 ### Backend
 - **Programming Language**: Go
@@ -38,7 +38,7 @@ The primary goal of this project is to implement a robust backend ecosystem base
 - **API Gateway**: Kong
 - **Email Service**: SendGrid
 
-## Microservices
+## 🕸️ Microservices
 
 ### User Service
 - User registration and authentication
@@ -71,7 +71,7 @@ The primary goal of this project is to implement a robust backend ecosystem base
 - User registration notifications
 - Template-based email rendering
 
-## SAGA Pattern Implementation
+## 🔗 SAGA Pattern Implementation
 
 The platform implements the Choreography-based SAGA pattern for distributed transactions, particularly for the order creation process:
 
@@ -101,7 +101,7 @@ The platform implements the Choreography-based SAGA pattern for distributed tran
      - Restock products if payment fails
      - Refund payment if order cannot be completed
 
-## Project Structure
+## 📁 Project Structure
 ```
 e-commerce-platform/ 
 ├── user-service/
@@ -131,7 +131,7 @@ service-name/
 └── Dockerfile # Container definition
 ```
 
-## Running the Application
+## 🚀 Running the Application
 
 ### Prerequisites
 - Docker and Docker Compose
@@ -172,7 +172,7 @@ For production deployment, Kubernetes manifests are provided in the k8s director
 kubectl apply -f k8s/
 ```
 
-## Future Improvements
+## 🔭 Future Improvements
 
 - Add frontend
 - Add comprehensive test coverage (unit, integration, e2e)
