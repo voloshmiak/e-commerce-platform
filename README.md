@@ -4,8 +4,6 @@ A modern, distributed e-commerce platform built with microservices architecture 
 
 ## Architecture Overview
 
-![SAGA Pattern](./saga.jpg)
-
 This platform is designed as a collection of loosely coupled microservices that communicate via both synchronous (gRPC) and asynchronous (Kafka) methods. Each service is responsible for a specific business capability and can be developed, deployed, and scaled independently.
 
 ## Technology Stack
@@ -67,6 +65,8 @@ This platform is designed as a collection of loosely coupled microservices that 
 ## SAGA Pattern Implementation
 
 The platform implements the Choreography-based SAGA pattern for distributed transactions, particularly for the order creation process:
+
+![SAGA Pattern](./saga.jpg)
 
 1. **Order Creation**:
    - User initiates an order
