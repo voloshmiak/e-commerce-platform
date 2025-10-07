@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-order-secret
+  namespace: data
+type: Opaque
+stringData:
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "password"
+  POSTGRES_DB: "orderdb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-order-service
+  namespace: data
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres-order
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-order
+  namespace: data
+spec:
+  serviceName: "postgres-order-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-order
+  template:
+    metadata:
+      labels:
+        app: postgres-order
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-order-secret
+          volumeMounts:
+            - name: postgres-order-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-order-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 5Gi # Виділяємо 5GB для бази даних замовлень

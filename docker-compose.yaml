@@ -1,0 +1,370 @@
+services:
+  user-service:
+    image: user-service
+    build:
+        context: ./user-service
+        dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      DB_HOST: postgres-user
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: userdb
+      DB_MIGRATIONS_PATH: ./migrations
+      SERVER_PORT: 8080
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+    depends_on:
+      postgres-user:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  product-catalog-service:
+    image: product-catalog-service
+    build:
+        context: ./product-service
+        dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    environment:
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9092
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DB_NAME=ecommerce
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=password
+      - SERVER_PORT=8080
+      - ELASTIC_HOST=elasticsearch
+      - ELASTIC_PORT=9200
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  shopping-cart-service:
+    image: shopping-cart-service
+    build:
+        context: shopping-cart-service
+        dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    environment:
+      DB_HOST: redis
+      DB_PORT: 6379
+      SERVER_PORT: 8080
+      PRODUCT_CATALOG_HOST: product-catalog-service
+      PRODUCT_CATALOG_PORT: 8080
+    depends_on:
+      redis:
+        condition: service_healthy
+      product-catalog-service:
+        condition: service_started
+    networks:
+      - ecommerce-network
+
+  order-service:
+    image: order-service
+    build:
+        context: ./order-service
+        dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8084:8080"
+    environment:
+      DB_HOST: postgres-order
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: orderdb
+      DB_MIGRATIONS_PATH: ./migrations
+      SERVER_PORT: 8080
+      CART_HOST: shopping-cart-service
+      CART_PORT: 8080
+      USER_HOST: user-service
+      USER_PORT: 8080
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+    depends_on:
+      postgres-order:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      product-catalog-service:
+        condition: service_started
+      shopping-cart-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+    networks:
+      - ecommerce-network
+
+  payment-service:
+    image: payment-service
+    build:
+        context: ./payment-service
+        dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8085:8080"
+    environment:
+      DB_HOST: postgres-payment
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: paymentdb
+      DB_MIGRATIONS_PATH: ./migrations
+      SERVER_PORT: 8080
+      CART_HOST: shopping-cart-service
+      CART_PORT: 8080
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      STRIPE_SECRET: ${STRIPE_SECRET}
+    depends_on:
+      postgres-payment:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      order-service:
+        condition: service_started
+      product-catalog-service:
+        condition: service_started
+    networks:
+      - ecommerce-network
+
+  notification-service:
+    image: notification-service
+    build:
+        context: ./notification-service
+        dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+        KAFKA_HOST: kafka
+        KAFKA_PORT: 9092
+        SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "8089:3000"
+    networks:
+      - ecommerce-network
+
+  postgres-user:
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: userdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - postgres-user-data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+
+  postgres-order:
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=orderdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - postgres-order-data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+
+  postgres-payment:
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=paymentdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - postgres-payment-data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+
+  mongodb:
+    image: mongo:6.0
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - ecommerce-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - ecommerce-network
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_USER=user
+      - REDIS_USER_PASSWORD=password
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis-data:/data
+    networks:
+      - ecommerce-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    restart: unless-stopped
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: [ "CMD-SHELL", "echo stat | nc localhost 2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+    networks:
+      - ecommerce-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.0
+    restart: always
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://0.0.0.0:29092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  kong-gateway:
+    image: kong/kong-gateway:latest
+    read_only: true
+    restart: unless-stopped
+    environment:
+      KONG_PREFIX: /var/run/kong
+      KONG_DATABASE: off
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yaml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+      KONG_LICENSE_DATA: "${KONG_LICENSE_DATA}"
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+      - "8002:8002"
+      - "8445:8445"
+      - "8003:8003"
+      - "8004:8004"
+    volumes:
+      - ./gateway:/kong/declarative/
+      - ./order-service/protobuf:/kong/protos/order
+      - ./payment-service/protobuf:/kong/protos/payment
+      - ./product-service/protobuf:/kong/protos/product-catalog
+      - ./shopping-cart-service/protobuf:/kong/protos/shopping-cart
+      - ./user-service/protobuf:/kong/protos/user
+      - ./gateway/kong-data/tmp:/tmp
+      - ./gateway/kong-data/prefix:/var/run/kong
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  postgres-user-data:
+  postgres-order-data:
+  postgres-payment-data:
+  mongodb-data:
+  es-data:
+  redis-data:
+  zookeeper-data:

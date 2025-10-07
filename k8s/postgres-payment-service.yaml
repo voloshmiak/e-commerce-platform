@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-payment-secret
+  namespace: data
+type: Opaque
+stringData:
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "password"
+  POSTGRES_DB: "paymentdb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-payment-service
+  namespace: data
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres-payment
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-payment
+  namespace: data
+spec:
+  serviceName: "postgres-payment-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-payment
+  template:
+    metadata:
+      labels:
+        app: postgres-payment
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-payment-secret
+          volumeMounts:
+            - name: postgres-payment-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-payment-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi # Виділяємо 2GB для бази даних платежів

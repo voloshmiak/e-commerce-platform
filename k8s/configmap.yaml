@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-config
+  namespace: services
+data:
+
+  USER_DB_HOST: "postgres-user-service.data"
+  USER_DB_PORT: "5432"
+  USER_DB_NAME: "userdb"
+  USER_SERVER_PORT: "8080"
+  USER_KAFKA_HOST: "kafka-service.data"
+  USER_KAFKA_PORT: "9092"
+
+  # --- Змінні для Product Catalog Service ---
+  PRODUCT_CATALOG_KAFKA_HOST: "kafka-service.data"
+  PRODUCT_CATALOG_KAFKA_PORT: "9092"
+  MONGO_HOST: "mongodb-service.data"
+  MONGO_PORT: "27017"
+  MONGO_DB_NAME: "ecommerce"
+  PRODUCT_CATALOG_SERVER_PORT: "8080"
+  ELASTIC_HOST: "elasticsearch-service.data"
+  ELASTIC_PORT: "9200"
+
+  # --- Змінні для Shopping Cart Service ---
+  CART_DB_HOST: "redis-service.data"
+  CART_DB_PORT: "6379"
+  CART_SERVER_PORT: "8080"
+  CART_PRODUCT_CATALOG_HOST: "product-catalog-service.services"
+  CART_PRODUCT_CATALOG_PORT: "8080"
+
+  # --- Змінні для Order Service ---
+  ORDER_DB_HOST: "postgres-order-service.data"
+  ORDER_DB_PORT: "5432"
+  ORDER_DB_NAME: "orderdb"
+  ORDER_SERVER_PORT: "8080"
+  ORDER_CART_HOST: "shopping-cart-service.services"
+  ORDER_CART_PORT: "8080"
+  ORDER_USER_HOST: "user-service.services"
+  ORDER_USER_PORT: "8080"
+  ORDER_KAFKA_HOST: "kafka-service.data"
+  ORDER_KAFKA_PORT: "9092"
+
+  # --- Змінні для Payment Service ---
+  PAYMENT_DB_HOST: "postgres-payment-service.data"
+  PAYMENT_DB_PORT: "5432"
+  PAYMENT_DB_NAME: "paymentdb"
+  PAYMENT_SERVER_PORT: "8080"
+  PAYMENT_CART_HOST: "shopping-cart-service.services"
+  PAYMENT_CART_PORT: "8080"
+  PAYMENT_KAFKA_HOST: "kafka-service.data"
+  PAYMENT_KAFKA_PORT: "9092"
+
+  # --- Змінні для Notification Service ---
+  NOTIFICATION_KAFKA_HOST: "kafka-service.data"
+  NOTIFICATION_KAFKA_PORT: "9092"

@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: services
+spec:
+  type: ClusterIP
+  selector:
+    app: order-service
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service-deployment
+  namespace: services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: voloshmiak/ecommerce-project:order-service-v1.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_DB_HOST } }
+            - name: DB_PORT
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_DB_PORT } }
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: service-secrets, key: POSTGRES_ORDER_PASSWORD } }
+            - name: DB_NAME
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_DB_NAME } }
+            - name: SERVER_PORT
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_SERVER_PORT } }
+            - name: CART_HOST
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_CART_HOST } }
+            - name: CART_PORT
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_CART_PORT } }
+            - name: USER_HOST
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_USER_HOST } }
+            - name: USER_PORT
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_USER_PORT } }
+            - name: KAFKA_HOST
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_KAFKA_HOST } }
+            - name: KAFKA_PORT
+              valueFrom: { configMapKeyRef: { name: service-config, key: ORDER_KAFKA_PORT } }
+            - name: DB_MIGRATIONS_PATH
+              value: "/root/migrations"

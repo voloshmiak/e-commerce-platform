@@ -1,0 +1,220 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-config
+  namespace: api
+data:
+  kong.yaml: |
+    _format_version: "3.0"
+
+    services:
+      # Product Catalog Service
+      - name: product-service
+        protocol: grpc
+        host: product-catalog-service.services.svc.cluster.local
+        port: 8080
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /kong/protos/product-catalog/products.proto
+    
+      # User Service
+      - name: user-service
+        protocol: grpc
+        host: user-service.services.svc.cluster.local
+        port: 8080
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /kong/protos/user/users.proto
+    
+      # Shopping Cart Service
+      - name: cart-service
+        protocol: grpc
+        host: shopping-cart-service.services.svc.cluster.local
+        port: 8080
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /kong/protos/shopping-cart/carts.proto
+          - name: cors
+            config:
+              origins:
+                - http://localhost:8089
+              methods:
+                - GET
+                - POST
+                - DELETE
+                - PATCH
+                - OPTIONS
+              headers:
+                - Content-Type
+                - Authorization
+              credentials: true
+              max_age: 3600
+    
+      # Order Service
+      - name: order-service
+        protocol: grpc
+        host: order-service.services.svc.cluster.local
+        port: 8080
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /kong/protos/order/orders.proto
+    
+      # Payment Service
+      - name: payment-service
+        protocol: grpc
+        host: payment-service.services.svc.cluster.local
+        port: 8080
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /kong/protos/payment/payments.proto
+    
+    routes:
+      # Product Catalog Routes
+      - name: products-list
+        paths: [/api/v1/products]
+        methods: [GET, POST]
+        service: product-service
+        strip_path: true
+    
+      - name: products-detail
+        paths: ["~/api/v1/products/[a-zA-Z0-9-_]+$"]
+        methods: [GET, PATCH, DELETE]
+        service: product-service
+        strip_path: true
+    
+      # User Service Routes
+      - name: user-register
+        paths: [/api/v1/auth/register]
+        methods: [POST]
+        service: user-service
+        strip_path: true
+    
+      - name: user-login
+        paths: [/api/v1/auth/login]
+        methods: [POST, OPTIONS]
+        service: user-service
+        strip_path: true
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - http://localhost:8089
+              methods:
+                - POST
+                - OPTIONS
+              headers:
+                - Content-Type
+                - Authorization
+              credentials: true
+              max_age: 3600
+    
+      - name: user-profile
+        paths: [/api/v1/users/profile]
+        methods: [GET, PUT]
+        service: user-service
+        strip_path: true
+        plugins:
+          - name: jwt
+    
+      # Shopping Cart Routes
+      - name: cart-view
+        paths: [/api/v1/cart]
+        methods: [GET, DELETE, OPTIONS]
+        service: cart-service
+        strip_path: true
+        plugins:
+          - name: jwt
+    
+      - name: cart-add
+        paths: [/api/v1/cart/items]
+        methods: [POST, OPTIONS]
+        service: cart-service
+        strip_path: true
+        plugins:
+          - name: jwt
+    
+      - name: cart-update
+        paths: [~/api/v1/cart/items/\d+$]
+        methods: [PATCH, DELETE]
+        service: cart-service
+        strip_path: true
+        plugins:
+          - name: jwt
+    
+      # Order Service Routes
+      - name: orders
+        paths: [/api/v1/orders]
+        methods: [GET, POST, OPTIONS]
+        service: order-service
+        strip_path: true
+        plugins:
+          - name: jwt
+          - name: cors
+            config:
+              origins:
+                - http://localhost:8089
+              methods:
+                - GET
+                - POST
+                - OPTIONS
+              headers:
+                - Content-Type
+                - Authorization
+              credentials: true
+              max_age: 3600
+    
+      - name: order-detail
+        paths: [~/api/v1/orders/\d+$]
+        methods: [GET]
+        service: order-service
+        strip_path: true
+        plugins:
+          - name: jwt
+    
+      # Payment Service Routes
+      - name: payments
+        paths: [/api/v1/payments/initiate]
+        methods: [POST, OPTIONS]
+        service: payment-service
+        strip_path: true
+        plugins:
+          - name: jwt
+          - name: cors
+            config:
+              origins:
+                - http://localhost:8089
+              methods:
+                - GET
+                - POST
+                - OPTIONS
+              headers:
+                - Content-Type
+                - Authorization
+              credentials: true
+              max_age: 3600
+    
+      - name: get-payments
+        paths: [/api/v1/payments]
+        methods: [GET]
+        service: payment-service
+        strip_path: true
+        plugins:
+          - name: jwt
+
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: local
+    
+    consumers:
+      - username: my-api-user
+        jwt_secrets:
+          - algorithm: HS256
+            key: my-unique-issuer-key
+            secret: my-secret-key

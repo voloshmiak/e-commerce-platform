@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PaymentService_ProcessPayment_FullMethodName   = "/payment.PaymentService/ProcessPayment"
-	PaymentService_GetPaymentStatus_FullMethodName = "/payment.PaymentService/GetPaymentStatus"
+	PaymentService_ProcessPayment_FullMethodName = "/payment.PaymentService/ProcessPayment"
+	PaymentService_GetPayments_FullMethodName    = "/payment.PaymentService/GetPayments"
 )
 
 // PaymentServiceClient is the client API for PaymentService service.
@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PaymentServiceClient interface {
 	ProcessPayment(ctx context.Context, in *ProcessPaymentRequest, opts ...grpc.CallOption) (*ProcessPaymentResponse, error)
-	GetPaymentStatus(ctx context.Context, in *GetPaymentStatusRequest, opts ...grpc.CallOption) (*GetPaymentStatusResponse, error)
+	GetPayments(ctx context.Context, in *GetPaymentsRequest, opts ...grpc.CallOption) (*GetPaymentsResponse, error)
 }
 
 type paymentServiceClient struct {
@@ -49,10 +49,10 @@ func (c *paymentServiceClient) ProcessPayment(ctx context.Context, in *ProcessPa
 	return out, nil
 }
 
-func (c *paymentServiceClient) GetPaymentStatus(ctx context.Context, in *GetPaymentStatusRequest, opts ...grpc.CallOption) (*GetPaymentStatusResponse, error) {
+func (c *paymentServiceClient) GetPayments(ctx context.Context, in *GetPaymentsRequest, opts ...grpc.CallOption) (*GetPaymentsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetPaymentStatusResponse)
-	err := c.cc.Invoke(ctx, PaymentService_GetPaymentStatus_FullMethodName, in, out, cOpts...)
+	out := new(GetPaymentsResponse)
+	err := c.cc.Invoke(ctx, PaymentService_GetPayments_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *paymentServiceClient) GetPaymentStatus(ctx context.Context, in *GetPaym
 // for forward compatibility.
 type PaymentServiceServer interface {
 	ProcessPayment(context.Context, *ProcessPaymentRequest) (*ProcessPaymentResponse, error)
-	GetPaymentStatus(context.Context, *GetPaymentStatusRequest) (*GetPaymentStatusResponse, error)
+	GetPayments(context.Context, *GetPaymentsRequest) (*GetPaymentsResponse, error)
 	mustEmbedUnimplementedPaymentServiceServer()
 }
 
@@ -78,8 +78,8 @@ type UnimplementedPaymentServiceServer struct{}
 func (UnimplementedPaymentServiceServer) ProcessPayment(context.Context, *ProcessPaymentRequest) (*ProcessPaymentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProcessPayment not implemented")
 }
-func (UnimplementedPaymentServiceServer) GetPaymentStatus(context.Context, *GetPaymentStatusRequest) (*GetPaymentStatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPaymentStatus not implemented")
+func (UnimplementedPaymentServiceServer) GetPayments(context.Context, *GetPaymentsRequest) (*GetPaymentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPayments not implemented")
 }
 func (UnimplementedPaymentServiceServer) mustEmbedUnimplementedPaymentServiceServer() {}
 func (UnimplementedPaymentServiceServer) testEmbeddedByValue()                        {}
@@ -120,20 +120,20 @@ func _PaymentService_ProcessPayment_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PaymentService_GetPaymentStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetPaymentStatusRequest)
+func _PaymentService_GetPayments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPaymentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PaymentServiceServer).GetPaymentStatus(ctx, in)
+		return srv.(PaymentServiceServer).GetPayments(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PaymentService_GetPaymentStatus_FullMethodName,
+		FullMethod: PaymentService_GetPayments_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServiceServer).GetPaymentStatus(ctx, req.(*GetPaymentStatusRequest))
+		return srv.(PaymentServiceServer).GetPayments(ctx, req.(*GetPaymentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -150,8 +150,8 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PaymentService_ProcessPayment_Handler,
 		},
 		{
-			MethodName: "GetPaymentStatus",
-			Handler:    _PaymentService_GetPaymentStatus_Handler,
+			MethodName: "GetPayments",
+			Handler:    _PaymentService_GetPayments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

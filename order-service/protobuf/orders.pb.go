@@ -10,7 +10,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -28,7 +27,7 @@ type Status int32
 const (
 	Status_PENDING   Status = 0
 	Status_PAID      Status = 1
-	Status_SHIPPED   Status = 2
+	Status_CONFIRMED Status = 2
 	Status_CANCELLED Status = 3
 )
 
@@ -37,13 +36,13 @@ var (
 	Status_name = map[int32]string{
 		0: "PENDING",
 		1: "PAID",
-		2: "SHIPPED",
+		2: "CONFIRMED",
 		3: "CANCELLED",
 	}
 	Status_value = map[string]int32{
 		"PENDING":   0,
 		"PAID":      1,
-		"SHIPPED":   2,
+		"CONFIRMED": 2,
 		"CANCELLED": 3,
 	}
 )
@@ -73,6 +72,55 @@ func (x Status) Number() protoreflect.EnumNumber {
 // Deprecated: Use Status.Descriptor instead.
 func (Status) EnumDescriptor() ([]byte, []int) {
 	return file_orders_proto_rawDescGZIP(), []int{0}
+}
+
+type PaymentMethod int32
+
+const (
+	PaymentMethod_PAYMENT_METHOD_UNSPECIFIED PaymentMethod = 0
+	PaymentMethod_CARD                       PaymentMethod = 1
+	PaymentMethod_ON_DELIVERY                PaymentMethod = 2
+)
+
+// Enum value maps for PaymentMethod.
+var (
+	PaymentMethod_name = map[int32]string{
+		0: "PAYMENT_METHOD_UNSPECIFIED",
+		1: "CARD",
+		2: "ON_DELIVERY",
+	}
+	PaymentMethod_value = map[string]int32{
+		"PAYMENT_METHOD_UNSPECIFIED": 0,
+		"CARD":                       1,
+		"ON_DELIVERY":                2,
+	}
+)
+
+func (x PaymentMethod) Enum() *PaymentMethod {
+	p := new(PaymentMethod)
+	*p = x
+	return p
+}
+
+func (x PaymentMethod) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PaymentMethod) Descriptor() protoreflect.EnumDescriptor {
+	return file_orders_proto_enumTypes[1].Descriptor()
+}
+
+func (PaymentMethod) Type() protoreflect.EnumType {
+	return &file_orders_proto_enumTypes[1]
+}
+
+func (x PaymentMethod) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PaymentMethod.Descriptor instead.
+func (PaymentMethod) EnumDescriptor() ([]byte, []int) {
+	return file_orders_proto_rawDescGZIP(), []int{1}
 }
 
 type OrderItem struct {
@@ -138,8 +186,13 @@ func (x *OrderItem) GetPrice() float64 {
 type CreateOrderRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	ShippingAddress string                 `protobuf:"bytes,1,opt,name=shipping_address,json=shippingAddress,proto3" json:"shipping_address,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	PaymentMethod   PaymentMethod          `protobuf:"varint,2,opt,name=payment_method,json=paymentMethod,proto3,enum=order.PaymentMethod" json:"payment_method,omitempty"`
+	// Types that are valid to be assigned to PaymentInfo:
+	//
+	//	*CreateOrderRequest_PaymentIntentId
+	PaymentInfo   isCreateOrderRequest_PaymentInfo `protobuf_oneof:"payment_info"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateOrderRequest) Reset() {
@@ -178,6 +231,39 @@ func (x *CreateOrderRequest) GetShippingAddress() string {
 	}
 	return ""
 }
+
+func (x *CreateOrderRequest) GetPaymentMethod() PaymentMethod {
+	if x != nil {
+		return x.PaymentMethod
+	}
+	return PaymentMethod_PAYMENT_METHOD_UNSPECIFIED
+}
+
+func (x *CreateOrderRequest) GetPaymentInfo() isCreateOrderRequest_PaymentInfo {
+	if x != nil {
+		return x.PaymentInfo
+	}
+	return nil
+}
+
+func (x *CreateOrderRequest) GetPaymentIntentId() string {
+	if x != nil {
+		if x, ok := x.PaymentInfo.(*CreateOrderRequest_PaymentIntentId); ok {
+			return x.PaymentIntentId
+		}
+	}
+	return ""
+}
+
+type isCreateOrderRequest_PaymentInfo interface {
+	isCreateOrderRequest_PaymentInfo()
+}
+
+type CreateOrderRequest_PaymentIntentId struct {
+	PaymentIntentId string `protobuf:"bytes,3,opt,name=payment_intent_id,json=paymentIntentId,proto3,oneof"`
+}
+
+func (*CreateOrderRequest_PaymentIntentId) isCreateOrderRequest_PaymentInfo() {}
 
 type CreateOrderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -359,6 +445,42 @@ func (x *GetOrderRequest) GetId() int64 {
 	return 0
 }
 
+type ListOrdersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListOrdersRequest) Reset() {
+	*x = ListOrdersRequest{}
+	mi := &file_orders_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListOrdersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListOrdersRequest) ProtoMessage() {}
+
+func (x *ListOrdersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_orders_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListOrdersRequest.ProtoReflect.Descriptor instead.
+func (*ListOrdersRequest) Descriptor() ([]byte, []int) {
+	return file_orders_proto_rawDescGZIP(), []int{5}
+}
+
 type ListOrdersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Orders        []*Order               `protobuf:"bytes,1,rep,name=orders,proto3" json:"orders,omitempty"`
@@ -368,7 +490,7 @@ type ListOrdersResponse struct {
 
 func (x *ListOrdersResponse) Reset() {
 	*x = ListOrdersResponse{}
-	mi := &file_orders_proto_msgTypes[5]
+	mi := &file_orders_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +502,7 @@ func (x *ListOrdersResponse) String() string {
 func (*ListOrdersResponse) ProtoMessage() {}
 
 func (x *ListOrdersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_orders_proto_msgTypes[5]
+	mi := &file_orders_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +515,7 @@ func (x *ListOrdersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOrdersResponse.ProtoReflect.Descriptor instead.
 func (*ListOrdersResponse) Descriptor() ([]byte, []int) {
-	return file_orders_proto_rawDescGZIP(), []int{5}
+	return file_orders_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListOrdersResponse) GetOrders() []*Order {
@@ -403,70 +525,21 @@ func (x *ListOrdersResponse) GetOrders() []*Order {
 	return nil
 }
 
-type UpdateStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Status        Status                 `protobuf:"varint,2,opt,name=status,proto3,enum=order.Status" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateStatusRequest) Reset() {
-	*x = UpdateStatusRequest{}
-	mi := &file_orders_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateStatusRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateStatusRequest) ProtoMessage() {}
-
-func (x *UpdateStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_orders_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateStatusRequest.ProtoReflect.Descriptor instead.
-func (*UpdateStatusRequest) Descriptor() ([]byte, []int) {
-	return file_orders_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *UpdateStatusRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *UpdateStatusRequest) GetStatus() Status {
-	if x != nil {
-		return x.Status
-	}
-	return Status_PENDING
-}
-
 var File_orders_proto protoreflect.FileDescriptor
 
 const file_orders_proto_rawDesc = "" +
 	"\n" +
-	"\forders.proto\x12\x05order\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/api/annotations.proto\"\\\n" +
+	"\forders.proto\x12\x05order\x1a\x1cgoogle/api/annotations.proto\"\\\n" +
 	"\tOrderItem\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1a\n" +
 	"\bquantity\x18\x02 \x01(\x03R\bquantity\x12\x14\n" +
-	"\x05price\x18\x03 \x01(\x01R\x05price\"?\n" +
+	"\x05price\x18\x03 \x01(\x01R\x05price\"\xba\x01\n" +
 	"\x12CreateOrderRequest\x12)\n" +
-	"\x10shipping_address\x18\x01 \x01(\tR\x0fshippingAddress\"=\n" +
+	"\x10shipping_address\x18\x01 \x01(\tR\x0fshippingAddress\x12;\n" +
+	"\x0epayment_method\x18\x02 \x01(\x0e2\x14.order.PaymentMethodR\rpaymentMethod\x12,\n" +
+	"\x11payment_intent_id\x18\x03 \x01(\tH\x00R\x0fpaymentIntentIdB\x0e\n" +
+	"\fpayment_info\"=\n" +
 	"\x13CreateOrderResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\"\xcb\x01\n" +
@@ -479,22 +552,23 @@ const file_orders_proto_rawDesc = "" +
 	"totalPrice\x12)\n" +
 	"\x10shipping_address\x18\x06 \x01(\tR\x0fshippingAddress\"!\n" +
 	"\x0fGetOrderRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\":\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\x13\n" +
+	"\x11ListOrdersRequest\":\n" +
 	"\x12ListOrdersResponse\x12$\n" +
-	"\x06orders\x18\x01 \x03(\v2\f.order.OrderR\x06orders\"L\n" +
-	"\x13UpdateStatusRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
-	"\x06status\x18\x02 \x01(\x0e2\r.order.StatusR\x06status*;\n" +
+	"\x06orders\x18\x01 \x03(\v2\f.order.OrderR\x06orders*=\n" +
 	"\x06Status\x12\v\n" +
 	"\aPENDING\x10\x00\x12\b\n" +
-	"\x04PAID\x10\x01\x12\v\n" +
-	"\aSHIPPED\x10\x02\x12\r\n" +
-	"\tCANCELLED\x10\x032\xe4\x02\n" +
+	"\x04PAID\x10\x01\x12\r\n" +
+	"\tCONFIRMED\x10\x02\x12\r\n" +
+	"\tCANCELLED\x10\x03*J\n" +
+	"\rPaymentMethod\x12\x1e\n" +
+	"\x1aPAYMENT_METHOD_UNSPECIFIED\x10\x00\x12\b\n" +
+	"\x04CARD\x10\x01\x12\x0f\n" +
+	"\vON_DELIVERY\x10\x022\x9d\x02\n" +
 	"\fOrderService\x12_\n" +
 	"\vCreateOrder\x12\x19.order.CreateOrderRequest\x1a\x1a.order.CreateOrderResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/api/v1/orders\x12M\n" +
-	"\bGetOrder\x12\x16.order.GetOrderRequest\x1a\f.order.Order\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1/orders/{id}\x12[\n" +
-	"\x0eListUserOrders\x12\x16.google.protobuf.Empty\x1a\x19.order.ListOrdersResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/api/v1/orders\x12G\n" +
-	"\x11UpdateOrderStatus\x12\x1a.order.UpdateStatusRequest\x1a\x16.google.protobuf.EmptyB\vZ\t/protobufb\x06proto3"
+	"\bGetOrder\x12\x16.order.GetOrderRequest\x1a\f.order.Order\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1/orders/{id}\x12]\n" +
+	"\x0eListUserOrders\x12\x18.order.ListOrdersRequest\x1a\x19.order.ListOrdersResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/api/v1/ordersB\vZ\t/protobufb\x06proto3"
 
 var (
 	file_orders_proto_rawDescOnce sync.Once
@@ -508,34 +582,32 @@ func file_orders_proto_rawDescGZIP() []byte {
 	return file_orders_proto_rawDescData
 }
 
-var file_orders_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_orders_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_orders_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_orders_proto_goTypes = []any{
 	(Status)(0),                 // 0: order.Status
-	(*OrderItem)(nil),           // 1: order.OrderItem
-	(*CreateOrderRequest)(nil),  // 2: order.CreateOrderRequest
-	(*CreateOrderResponse)(nil), // 3: order.CreateOrderResponse
-	(*Order)(nil),               // 4: order.Order
-	(*GetOrderRequest)(nil),     // 5: order.GetOrderRequest
-	(*ListOrdersResponse)(nil),  // 6: order.ListOrdersResponse
-	(*UpdateStatusRequest)(nil), // 7: order.UpdateStatusRequest
-	(*emptypb.Empty)(nil),       // 8: google.protobuf.Empty
+	(PaymentMethod)(0),          // 1: order.PaymentMethod
+	(*OrderItem)(nil),           // 2: order.OrderItem
+	(*CreateOrderRequest)(nil),  // 3: order.CreateOrderRequest
+	(*CreateOrderResponse)(nil), // 4: order.CreateOrderResponse
+	(*Order)(nil),               // 5: order.Order
+	(*GetOrderRequest)(nil),     // 6: order.GetOrderRequest
+	(*ListOrdersRequest)(nil),   // 7: order.ListOrdersRequest
+	(*ListOrdersResponse)(nil),  // 8: order.ListOrdersResponse
 }
 var file_orders_proto_depIdxs = []int32{
-	0, // 0: order.Order.status:type_name -> order.Status
-	1, // 1: order.Order.items:type_name -> order.OrderItem
-	4, // 2: order.ListOrdersResponse.orders:type_name -> order.Order
-	0, // 3: order.UpdateStatusRequest.status:type_name -> order.Status
-	2, // 4: order.OrderService.CreateOrder:input_type -> order.CreateOrderRequest
-	5, // 5: order.OrderService.GetOrder:input_type -> order.GetOrderRequest
-	8, // 6: order.OrderService.ListUserOrders:input_type -> google.protobuf.Empty
-	7, // 7: order.OrderService.UpdateOrderStatus:input_type -> order.UpdateStatusRequest
-	3, // 8: order.OrderService.CreateOrder:output_type -> order.CreateOrderResponse
-	4, // 9: order.OrderService.GetOrder:output_type -> order.Order
-	6, // 10: order.OrderService.ListUserOrders:output_type -> order.ListOrdersResponse
-	8, // 11: order.OrderService.UpdateOrderStatus:output_type -> google.protobuf.Empty
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
+	1, // 0: order.CreateOrderRequest.payment_method:type_name -> order.PaymentMethod
+	0, // 1: order.Order.status:type_name -> order.Status
+	2, // 2: order.Order.items:type_name -> order.OrderItem
+	5, // 3: order.ListOrdersResponse.orders:type_name -> order.Order
+	3, // 4: order.OrderService.CreateOrder:input_type -> order.CreateOrderRequest
+	6, // 5: order.OrderService.GetOrder:input_type -> order.GetOrderRequest
+	7, // 6: order.OrderService.ListUserOrders:input_type -> order.ListOrdersRequest
+	4, // 7: order.OrderService.CreateOrder:output_type -> order.CreateOrderResponse
+	5, // 8: order.OrderService.GetOrder:output_type -> order.Order
+	8, // 9: order.OrderService.ListUserOrders:output_type -> order.ListOrdersResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
 	4, // [4:4] is the sub-list for extension extendee
 	0, // [0:4] is the sub-list for field type_name
@@ -546,12 +618,15 @@ func file_orders_proto_init() {
 	if File_orders_proto != nil {
 		return
 	}
+	file_orders_proto_msgTypes[1].OneofWrappers = []any{
+		(*CreateOrderRequest_PaymentIntentId)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_orders_proto_rawDesc), len(file_orders_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,

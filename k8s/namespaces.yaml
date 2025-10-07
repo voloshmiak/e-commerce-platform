@@ -1,0 +1,15 @@
+# 01-namespaces.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: services
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: data
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: api

@@ -2,7 +2,6 @@ syntax = "proto3";
 
 option go_package = "/protobuf";
 
-import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 
 package order;
@@ -19,12 +18,11 @@ service OrderService {
       get: "/api/v1/orders/{id}"
     };
   };
-  rpc ListUserOrders(google.protobuf.Empty) returns (ListOrdersResponse) {
+  rpc ListUserOrders(ListOrdersRequest) returns (ListOrdersResponse) {
     option (google.api.http) = {
       get: "/api/v1/orders"
     };
   };
-  rpc UpdateOrderStatus(UpdateStatusRequest) returns (google.protobuf.Empty);
 }
 
 message OrderItem {
@@ -35,6 +33,10 @@ message OrderItem {
 
 message CreateOrderRequest {
   string shipping_address = 1;
+  PaymentMethod payment_method = 2;
+  oneof payment_info {
+    string payment_intent_id = 3;
+  }
 }
 
 message CreateOrderResponse {
@@ -55,18 +57,21 @@ message GetOrderRequest {
   int64 id = 1;
 }
 
+message ListOrdersRequest {}
+
 message ListOrdersResponse {
   repeated Order orders = 1;
-}
-
-message UpdateStatusRequest {
-  int64 id = 1;
-  Status status = 2;
 }
 
 enum Status {
   PENDING = 0;
   PAID = 1;
-  SHIPPED = 2;
+  CONFIRMED = 2;
   CANCELLED = 3;
+}
+
+enum PaymentMethod {
+  PAYMENT_METHOD_UNSPECIFIED = 0;
+  CARD = 1;
+  ON_DELIVERY = 2;
 }

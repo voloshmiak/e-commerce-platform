@@ -10,6 +10,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -22,249 +23,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Status int32
-
-const (
-	Status_PENDING   Status = 0
-	Status_COMPLETED Status = 1
-	Status_FAILED    Status = 2
-	Status_REFUNDED  Status = 3
-)
-
-// Enum value maps for Status.
-var (
-	Status_name = map[int32]string{
-		0: "PENDING",
-		1: "COMPLETED",
-		2: "FAILED",
-		3: "REFUNDED",
-	}
-	Status_value = map[string]int32{
-		"PENDING":   0,
-		"COMPLETED": 1,
-		"FAILED":    2,
-		"REFUNDED":  3,
-	}
-)
-
-func (x Status) Enum() *Status {
-	p := new(Status)
-	*p = x
-	return p
-}
-
-func (x Status) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_payments_proto_enumTypes[0].Descriptor()
-}
-
-func (Status) Type() protoreflect.EnumType {
-	return &file_payments_proto_enumTypes[0]
-}
-
-func (x Status) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Status.Descriptor instead.
-func (Status) EnumDescriptor() ([]byte, []int) {
-	return file_payments_proto_rawDescGZIP(), []int{0}
-}
-
-type Method int32
-
-const (
-	Method_CREDIT_CARD Method = 0
-	Method_PAYPAL      Method = 2
-)
-
-// Enum value maps for Method.
-var (
-	Method_name = map[int32]string{
-		0: "CREDIT_CARD",
-		2: "PAYPAL",
-	}
-	Method_value = map[string]int32{
-		"CREDIT_CARD": 0,
-		"PAYPAL":      2,
-	}
-)
-
-func (x Method) Enum() *Method {
-	p := new(Method)
-	*p = x
-	return p
-}
-
-func (x Method) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Method) Descriptor() protoreflect.EnumDescriptor {
-	return file_payments_proto_enumTypes[1].Descriptor()
-}
-
-func (Method) Type() protoreflect.EnumType {
-	return &file_payments_proto_enumTypes[1]
-}
-
-func (x Method) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Method.Descriptor instead.
-func (Method) EnumDescriptor() ([]byte, []int) {
-	return file_payments_proto_rawDescGZIP(), []int{1}
-}
-
-type Currency int32
-
-const (
-	Currency_EUR Currency = 0
-	Currency_USD Currency = 1
-	Currency_JPY Currency = 2
-	Currency_BGN Currency = 3
-	Currency_CZK Currency = 4
-	Currency_DKK Currency = 5
-	Currency_GBP Currency = 6
-	Currency_HUF Currency = 7
-	Currency_PLN Currency = 8
-	Currency_RON Currency = 9
-	Currency_SEK Currency = 10
-	Currency_CHF Currency = 11
-	Currency_ISK Currency = 12
-	Currency_NOK Currency = 13
-	Currency_HRK Currency = 14
-	Currency_RUB Currency = 15
-	Currency_TRY Currency = 16
-	Currency_AUD Currency = 17
-	Currency_BRL Currency = 18
-	Currency_CAD Currency = 19
-	Currency_CNY Currency = 20
-	Currency_HKD Currency = 21
-	Currency_IDR Currency = 22
-	Currency_ILS Currency = 23
-	Currency_INR Currency = 24
-	Currency_KRW Currency = 25
-	Currency_MXN Currency = 26
-	Currency_MYR Currency = 27
-	Currency_NZD Currency = 28
-	Currency_PHP Currency = 29
-	Currency_SGD Currency = 30
-	Currency_THB Currency = 31
-	Currency_ZAR Currency = 32
-)
-
-// Enum value maps for Currency.
-var (
-	Currency_name = map[int32]string{
-		0:  "EUR",
-		1:  "USD",
-		2:  "JPY",
-		3:  "BGN",
-		4:  "CZK",
-		5:  "DKK",
-		6:  "GBP",
-		7:  "HUF",
-		8:  "PLN",
-		9:  "RON",
-		10: "SEK",
-		11: "CHF",
-		12: "ISK",
-		13: "NOK",
-		14: "HRK",
-		15: "RUB",
-		16: "TRY",
-		17: "AUD",
-		18: "BRL",
-		19: "CAD",
-		20: "CNY",
-		21: "HKD",
-		22: "IDR",
-		23: "ILS",
-		24: "INR",
-		25: "KRW",
-		26: "MXN",
-		27: "MYR",
-		28: "NZD",
-		29: "PHP",
-		30: "SGD",
-		31: "THB",
-		32: "ZAR",
-	}
-	Currency_value = map[string]int32{
-		"EUR": 0,
-		"USD": 1,
-		"JPY": 2,
-		"BGN": 3,
-		"CZK": 4,
-		"DKK": 5,
-		"GBP": 6,
-		"HUF": 7,
-		"PLN": 8,
-		"RON": 9,
-		"SEK": 10,
-		"CHF": 11,
-		"ISK": 12,
-		"NOK": 13,
-		"HRK": 14,
-		"RUB": 15,
-		"TRY": 16,
-		"AUD": 17,
-		"BRL": 18,
-		"CAD": 19,
-		"CNY": 20,
-		"HKD": 21,
-		"IDR": 22,
-		"ILS": 23,
-		"INR": 24,
-		"KRW": 25,
-		"MXN": 26,
-		"MYR": 27,
-		"NZD": 28,
-		"PHP": 29,
-		"SGD": 30,
-		"THB": 31,
-		"ZAR": 32,
-	}
-)
-
-func (x Currency) Enum() *Currency {
-	p := new(Currency)
-	*p = x
-	return p
-}
-
-func (x Currency) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Currency) Descriptor() protoreflect.EnumDescriptor {
-	return file_payments_proto_enumTypes[2].Descriptor()
-}
-
-func (Currency) Type() protoreflect.EnumType {
-	return &file_payments_proto_enumTypes[2]
-}
-
-func (x Currency) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Currency.Descriptor instead.
-func (Currency) EnumDescriptor() ([]byte, []int) {
-	return file_payments_proto_rawDescGZIP(), []int{2}
-}
-
 type ProcessPaymentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
-	Amount        float64                `protobuf:"fixed64,2,opt,name=amount,proto3" json:"amount,omitempty"`
-	Currency      Currency               `protobuf:"varint,3,opt,name=currency,proto3,enum=payment.Currency" json:"currency,omitempty"`
-	PaymentMethod Method                 `protobuf:"varint,4,opt,name=payment_method,json=paymentMethod,proto3,enum=payment.Method" json:"payment_method,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -299,38 +59,11 @@ func (*ProcessPaymentRequest) Descriptor() ([]byte, []int) {
 	return file_payments_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ProcessPaymentRequest) GetOrderId() int64 {
-	if x != nil {
-		return x.OrderId
-	}
-	return 0
-}
-
-func (x *ProcessPaymentRequest) GetAmount() float64 {
-	if x != nil {
-		return x.Amount
-	}
-	return 0
-}
-
-func (x *ProcessPaymentRequest) GetCurrency() Currency {
-	if x != nil {
-		return x.Currency
-	}
-	return Currency_EUR
-}
-
-func (x *ProcessPaymentRequest) GetPaymentMethod() Method {
-	if x != nil {
-		return x.PaymentMethod
-	}
-	return Method_CREDIT_CARD
-}
-
 type ProcessPaymentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TransactionId int64                  `protobuf:"varint,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	Status        Status                 `protobuf:"varint,2,opt,name=status,proto3,enum=payment.Status" json:"status,omitempty"`
+	ClientSecret  string                 `protobuf:"bytes,1,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
+	Amount        float32                `protobuf:"fixed32,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency      string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -365,41 +98,54 @@ func (*ProcessPaymentResponse) Descriptor() ([]byte, []int) {
 	return file_payments_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ProcessPaymentResponse) GetTransactionId() int64 {
+func (x *ProcessPaymentResponse) GetClientSecret() string {
 	if x != nil {
-		return x.TransactionId
+		return x.ClientSecret
+	}
+	return ""
+}
+
+func (x *ProcessPaymentResponse) GetAmount() float32 {
+	if x != nil {
+		return x.Amount
 	}
 	return 0
 }
 
-func (x *ProcessPaymentResponse) GetStatus() Status {
+func (x *ProcessPaymentResponse) GetCurrency() string {
 	if x != nil {
-		return x.Status
+		return x.Currency
 	}
-	return Status_PENDING
+	return ""
 }
 
-type GetPaymentStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TransactionId int64                  `protobuf:"varint,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type Payment struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Id                   int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Amount               float32                `protobuf:"fixed32,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency             string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
+	Status               string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	GatewayTransactionId *structpb.Value        `protobuf:"bytes,5,opt,name=gateway_transaction_id,json=gatewayTransactionId,proto3" json:"gateway_transaction_id,omitempty"`
+	PaymentMethod        string                 `protobuf:"bytes,6,opt,name=payment_method,json=paymentMethod,proto3" json:"payment_method,omitempty"`
+	OrderId              int64                  `protobuf:"varint,7,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
-func (x *GetPaymentStatusRequest) Reset() {
-	*x = GetPaymentStatusRequest{}
+func (x *Payment) Reset() {
+	*x = Payment{}
 	mi := &file_payments_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetPaymentStatusRequest) String() string {
+func (x *Payment) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetPaymentStatusRequest) ProtoMessage() {}
+func (*Payment) ProtoMessage() {}
 
-func (x *GetPaymentStatusRequest) ProtoReflect() protoreflect.Message {
+func (x *Payment) ProtoReflect() protoreflect.Message {
 	mi := &file_payments_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -411,39 +157,80 @@ func (x *GetPaymentStatusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetPaymentStatusRequest.ProtoReflect.Descriptor instead.
-func (*GetPaymentStatusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use Payment.ProtoReflect.Descriptor instead.
+func (*Payment) Descriptor() ([]byte, []int) {
 	return file_payments_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetPaymentStatusRequest) GetTransactionId() int64 {
+func (x *Payment) GetId() int64 {
 	if x != nil {
-		return x.TransactionId
+		return x.Id
 	}
 	return 0
 }
 
-type GetPaymentStatusResponse struct {
+func (x *Payment) GetAmount() float32 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+func (x *Payment) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *Payment) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Payment) GetGatewayTransactionId() *structpb.Value {
+	if x != nil {
+		return x.GatewayTransactionId
+	}
+	return nil
+}
+
+func (x *Payment) GetPaymentMethod() string {
+	if x != nil {
+		return x.PaymentMethod
+	}
+	return ""
+}
+
+func (x *Payment) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+type GetPaymentsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        Status                 `protobuf:"varint,1,opt,name=status,proto3,enum=payment.Status" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetPaymentStatusResponse) Reset() {
-	*x = GetPaymentStatusResponse{}
+func (x *GetPaymentsRequest) Reset() {
+	*x = GetPaymentsRequest{}
 	mi := &file_payments_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetPaymentStatusResponse) String() string {
+func (x *GetPaymentsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetPaymentStatusResponse) ProtoMessage() {}
+func (*GetPaymentsRequest) ProtoMessage() {}
 
-func (x *GetPaymentStatusResponse) ProtoReflect() protoreflect.Message {
+func (x *GetPaymentsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_payments_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -455,83 +242,79 @@ func (x *GetPaymentStatusResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetPaymentStatusResponse.ProtoReflect.Descriptor instead.
-func (*GetPaymentStatusResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetPaymentsRequest.ProtoReflect.Descriptor instead.
+func (*GetPaymentsRequest) Descriptor() ([]byte, []int) {
 	return file_payments_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetPaymentStatusResponse) GetStatus() Status {
+type GetPaymentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Payments      []*Payment             `protobuf:"bytes,1,rep,name=payments,proto3" json:"payments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPaymentsResponse) Reset() {
+	*x = GetPaymentsResponse{}
+	mi := &file_payments_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPaymentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPaymentsResponse) ProtoMessage() {}
+
+func (x *GetPaymentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_payments_proto_msgTypes[4]
 	if x != nil {
-		return x.Status
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	return Status_PENDING
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPaymentsResponse.ProtoReflect.Descriptor instead.
+func (*GetPaymentsResponse) Descriptor() ([]byte, []int) {
+	return file_payments_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetPaymentsResponse) GetPayments() []*Payment {
+	if x != nil {
+		return x.Payments
+	}
+	return nil
 }
 
 var File_payments_proto protoreflect.FileDescriptor
 
 const file_payments_proto_rawDesc = "" +
 	"\n" +
-	"\x0epayments.proto\x12\apayment\x1a\x1cgoogle/api/annotations.proto\"\xb1\x01\n" +
-	"\x15ProcessPaymentRequest\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x01R\x06amount\x12-\n" +
-	"\bcurrency\x18\x03 \x01(\x0e2\x11.payment.CurrencyR\bcurrency\x126\n" +
-	"\x0epayment_method\x18\x04 \x01(\x0e2\x0f.payment.MethodR\rpaymentMethod\"h\n" +
-	"\x16ProcessPaymentResponse\x12%\n" +
-	"\x0etransaction_id\x18\x01 \x01(\x03R\rtransactionId\x12'\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x0f.payment.StatusR\x06status\"@\n" +
-	"\x17GetPaymentStatusRequest\x12%\n" +
-	"\x0etransaction_id\x18\x01 \x01(\x03R\rtransactionId\"C\n" +
-	"\x18GetPaymentStatusResponse\x12'\n" +
-	"\x06status\x18\x01 \x01(\x0e2\x0f.payment.StatusR\x06status*>\n" +
-	"\x06Status\x12\v\n" +
-	"\aPENDING\x10\x00\x12\r\n" +
-	"\tCOMPLETED\x10\x01\x12\n" +
-	"\n" +
-	"\x06FAILED\x10\x02\x12\f\n" +
-	"\bREFUNDED\x10\x03*%\n" +
-	"\x06Method\x12\x0f\n" +
-	"\vCREDIT_CARD\x10\x00\x12\n" +
-	"\n" +
-	"\x06PAYPAL\x10\x02*\xb3\x02\n" +
-	"\bCurrency\x12\a\n" +
-	"\x03EUR\x10\x00\x12\a\n" +
-	"\x03USD\x10\x01\x12\a\n" +
-	"\x03JPY\x10\x02\x12\a\n" +
-	"\x03BGN\x10\x03\x12\a\n" +
-	"\x03CZK\x10\x04\x12\a\n" +
-	"\x03DKK\x10\x05\x12\a\n" +
-	"\x03GBP\x10\x06\x12\a\n" +
-	"\x03HUF\x10\a\x12\a\n" +
-	"\x03PLN\x10\b\x12\a\n" +
-	"\x03RON\x10\t\x12\a\n" +
-	"\x03SEK\x10\n" +
-	"\x12\a\n" +
-	"\x03CHF\x10\v\x12\a\n" +
-	"\x03ISK\x10\f\x12\a\n" +
-	"\x03NOK\x10\r\x12\a\n" +
-	"\x03HRK\x10\x0e\x12\a\n" +
-	"\x03RUB\x10\x0f\x12\a\n" +
-	"\x03TRY\x10\x10\x12\a\n" +
-	"\x03AUD\x10\x11\x12\a\n" +
-	"\x03BRL\x10\x12\x12\a\n" +
-	"\x03CAD\x10\x13\x12\a\n" +
-	"\x03CNY\x10\x14\x12\a\n" +
-	"\x03HKD\x10\x15\x12\a\n" +
-	"\x03IDR\x10\x16\x12\a\n" +
-	"\x03ILS\x10\x17\x12\a\n" +
-	"\x03INR\x10\x18\x12\a\n" +
-	"\x03KRW\x10\x19\x12\a\n" +
-	"\x03MXN\x10\x1a\x12\a\n" +
-	"\x03MYR\x10\x1b\x12\a\n" +
-	"\x03NZD\x10\x1c\x12\a\n" +
-	"\x03PHP\x10\x1d\x12\a\n" +
-	"\x03SGD\x10\x1e\x12\a\n" +
-	"\x03THB\x10\x1f\x12\a\n" +
-	"\x03ZAR\x10 2\xe1\x01\n" +
-	"\x0ePaymentService\x12v\n" +
-	"\x0eProcessPayment\x12\x1e.payment.ProcessPaymentRequest\x1a\x1f.payment.ProcessPaymentResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/api/v1/payments/process\x12W\n" +
-	"\x10GetPaymentStatus\x12 .payment.GetPaymentStatusRequest\x1a!.payment.GetPaymentStatusResponseB\vZ\t/protobufb\x06proto3"
+	"\x0epayments.proto\x12\apayment\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x17\n" +
+	"\x15ProcessPaymentRequest\"q\n" +
+	"\x16ProcessPaymentResponse\x12#\n" +
+	"\rclient_secret\x18\x01 \x01(\tR\fclientSecret\x12\x16\n" +
+	"\x06amount\x18\x02 \x01(\x02R\x06amount\x12\x1a\n" +
+	"\bcurrency\x18\x03 \x01(\tR\bcurrency\"\xf5\x01\n" +
+	"\aPayment\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06amount\x18\x02 \x01(\x02R\x06amount\x12\x1a\n" +
+	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12L\n" +
+	"\x16gateway_transaction_id\x18\x05 \x01(\v2\x16.google.protobuf.ValueR\x14gatewayTransactionId\x12%\n" +
+	"\x0epayment_method\x18\x06 \x01(\tR\rpaymentMethod\x12\x19\n" +
+	"\border_id\x18\a \x01(\x03R\aorderId\"\x14\n" +
+	"\x12GetPaymentsRequest\"C\n" +
+	"\x13GetPaymentsResponse\x12,\n" +
+	"\bpayments\x18\x01 \x03(\v2\x10.payment.PaymentR\bpayments2\xed\x01\n" +
+	"\x0ePaymentService\x12w\n" +
+	"\x0eProcessPayment\x12\x1e.payment.ProcessPaymentRequest\x1a\x1f.payment.ProcessPaymentResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/v1/payments/initiate\x12b\n" +
+	"\vGetPayments\x12\x1b.payment.GetPaymentsRequest\x1a\x1c.payment.GetPaymentsResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/v1/paymentsB\vZ\t/protobufb\x06proto3"
 
 var (
 	file_payments_proto_rawDescOnce sync.Once
@@ -545,31 +328,27 @@ func file_payments_proto_rawDescGZIP() []byte {
 	return file_payments_proto_rawDescData
 }
 
-var file_payments_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_payments_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_payments_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_payments_proto_goTypes = []any{
-	(Status)(0),                      // 0: payment.Status
-	(Method)(0),                      // 1: payment.Method
-	(Currency)(0),                    // 2: payment.Currency
-	(*ProcessPaymentRequest)(nil),    // 3: payment.ProcessPaymentRequest
-	(*ProcessPaymentResponse)(nil),   // 4: payment.ProcessPaymentResponse
-	(*GetPaymentStatusRequest)(nil),  // 5: payment.GetPaymentStatusRequest
-	(*GetPaymentStatusResponse)(nil), // 6: payment.GetPaymentStatusResponse
+	(*ProcessPaymentRequest)(nil),  // 0: payment.ProcessPaymentRequest
+	(*ProcessPaymentResponse)(nil), // 1: payment.ProcessPaymentResponse
+	(*Payment)(nil),                // 2: payment.Payment
+	(*GetPaymentsRequest)(nil),     // 3: payment.GetPaymentsRequest
+	(*GetPaymentsResponse)(nil),    // 4: payment.GetPaymentsResponse
+	(*structpb.Value)(nil),         // 5: google.protobuf.Value
 }
 var file_payments_proto_depIdxs = []int32{
-	2, // 0: payment.ProcessPaymentRequest.currency:type_name -> payment.Currency
-	1, // 1: payment.ProcessPaymentRequest.payment_method:type_name -> payment.Method
-	0, // 2: payment.ProcessPaymentResponse.status:type_name -> payment.Status
-	0, // 3: payment.GetPaymentStatusResponse.status:type_name -> payment.Status
-	3, // 4: payment.PaymentService.ProcessPayment:input_type -> payment.ProcessPaymentRequest
-	5, // 5: payment.PaymentService.GetPaymentStatus:input_type -> payment.GetPaymentStatusRequest
-	4, // 6: payment.PaymentService.ProcessPayment:output_type -> payment.ProcessPaymentResponse
-	6, // 7: payment.PaymentService.GetPaymentStatus:output_type -> payment.GetPaymentStatusResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 0: payment.Payment.gateway_transaction_id:type_name -> google.protobuf.Value
+	2, // 1: payment.GetPaymentsResponse.payments:type_name -> payment.Payment
+	0, // 2: payment.PaymentService.ProcessPayment:input_type -> payment.ProcessPaymentRequest
+	3, // 3: payment.PaymentService.GetPayments:input_type -> payment.GetPaymentsRequest
+	1, // 4: payment.PaymentService.ProcessPayment:output_type -> payment.ProcessPaymentResponse
+	4, // 5: payment.PaymentService.GetPayments:output_type -> payment.GetPaymentsResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_payments_proto_init() }
@@ -582,14 +361,13 @@ func file_payments_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_payments_proto_rawDesc), len(file_payments_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   4,
+			NumEnums:      0,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_payments_proto_goTypes,
 		DependencyIndexes: file_payments_proto_depIdxs,
-		EnumInfos:         file_payments_proto_enumTypes,
 		MessageInfos:      file_payments_proto_msgTypes,
 	}.Build()
 	File_payments_proto = out.File
