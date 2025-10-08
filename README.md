@@ -11,9 +11,7 @@ The primary goal of this project is to implement a robust backend ecosystem base
 - **Decoupled Services:** Each microservice has its own database and logic.
 - **Containerized Environment:** All services are containerized with Docker for consistency across development, testing, and production.
 - **Centralized Entry Point:** A single API Gateway routes all external traffic to the appropriate service.
-- **Service-to-Service Communication:** Services communicate with each other via REST APIs or gRPC.
-- **Automated Discovery:** Services dynamically register and discover each other using a Service Discovery tool.
-- **CI/CD Ready:** The project is structured to easily integrate with CI/CD pipelines for automated builds and deployments.
+- **Service-to-Service Communication:** Services communicate with each other via gRPC or Apache Kafka.
 
 ##  ⚙️ Technology Stack
 
