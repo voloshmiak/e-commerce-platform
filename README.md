@@ -26,10 +26,6 @@ The primary goal of this project is to implement a robust backend ecosystem base
   - Elasticsearch (product search)
 - **Authentication**: JWT
 
-### Frontend
-- **Programming Language**: JavaScript
-- **Payment Processing**: Stripe API integration
-
 ### Infrastructure
 - **Containerization**: Docker
 - **Orchestration**: Kubernetes
